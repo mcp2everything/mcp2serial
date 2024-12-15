@@ -136,6 +136,71 @@ Please make sure to update tests as appropriate.
 uv pytest tests/
 ```
 
+## Project Roadmap
+
+### Phase 1: Protocol Expansion
+- **Industrial Protocol Support**
+  - MODBUS RTU/TCP
+  - OPC UA
+  - MQTT
+  - CoAP
+  - TCP/IP Socket
+  
+- **Hardware Interface Extension**
+  - I2C
+  - SPI
+  - CAN
+  - 1-Wire
+  - GPIO
+
+### Phase 2: MCP2Anything Platform
+- **Unified Integration Platform**
+  - Visual Configuration Interface
+  - One-Click Protocol Activation
+  - Real-time Monitoring Dashboard
+  - Device Management System
+
+- **Intelligent Features**
+  - Protocol Auto-Detection
+  - Device Auto-Discovery
+  - Parameter Smart Optimization
+  - Anomaly Warning System
+
+### Phase 3: Ecosystem Development
+- **Plugin Marketplace**
+  - Protocol Plugins
+  - Device Drivers
+  - Custom Function Modules
+  - Community Contributions
+
+- **Cloud Service Integration**
+  - Device Cloud Management
+  - Remote Control
+  - Data Analytics
+  - AI Training Platform
+
+### Phase 4: Industry Solutions
+- **Vertical Domain Adaptation**
+  - Industrial Automation
+  - Smart Buildings
+  - Agricultural IoT
+  - Smart Cities
+
+- **Customization Services**
+  - Industry Protocol Adaptation
+  - Professional Technical Support
+  - Solution Consulting
+  - Training Services
+
+## Vision & Future
+
+MCP2Serial is revolutionizing IoT with:
+
+- **Protocol Unification**: Complete protocol support through MCP2Anything platform
+- **Plug and Play**: Zero-configuration setup with automatic discovery
+- **AI Empowerment**: Deep AI integration for intelligent decision-making
+- **Open Ecosystem**: Vibrant developer community and plugin marketplace
+
 ## License
 
 [MIT](LICENSE)
