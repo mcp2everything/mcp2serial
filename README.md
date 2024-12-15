@@ -1,6 +1,10 @@
 # MCP2Serial Service
 
-这是一个基于Claude MCP协议的串口通信服务，用于通过串口发送PWM频率控制命令。
+[English](README_EN.md) | 简体中文
+
+<div align="center">
+    <img src="docs/images/logo.png" alt="MCP2Serial Logo" width="200"/>
+</div>
 
 ## 功能特点
 
@@ -62,6 +66,27 @@ uv run src/mcp2serial/server.py
 
 Claude会理解你的意图，自动调用相应的命令来设置PWM频率。你不需要记住具体的命令格式，只需要用自然语言表达你的需求即可。
 
+## 快速开始
+
+1. 按照 [接线图](docs/images/wiring.png) 连接硬件
+2. 使用 Thonny 将 [firmware/src/main.py](firmware/src/main.py) 上传到 Pico
+3. 关闭 Thonny（释放串口）
+4. 配置并启动服务：
+   ```bash
+   # 创建虚拟环境并激活
+   uv venv
+   # Windows:
+   .venv\Scripts\activate
+   # Linux/macOS:
+   source .venv/bin/activate
+
+   # 安装依赖
+   uv pip install -e .
+   
+   # 启动服务
+   uv run src/mcp2serial/server.py
+   ```
+
 ## API说明
 
 服务提供以下工具：
@@ -82,3 +107,5 @@ Claude会理解你的意图，自动调用相应的命令来设置PWM频率。�
 - "No available serial port found"
 - "Serial communication error: ..."
 - "Unexpected response: ..."
+
+![系统架构图](docs/images/architecture.png)

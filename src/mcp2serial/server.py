@@ -7,6 +7,10 @@ import mcp.types as types
 from mcp.server import NotificationOptions, Server
 import mcp.server.stdio
 import logging
+import yaml
+import os
+from dataclasses import dataclass
+from typing import Dict, List
 
 # 设置更详细的日志格式
 logging.basicConfig(
@@ -17,13 +21,50 @@ logger = logging.getLogger(__name__)
 
 server = Server("mcp2serial")
 
+@dataclass
+class Config:
+    """Configuration for MCP2Serial service."""
+    port: Optional[str] = None
+    baud_rate: int = 115200
+    timeout: float = 1.0
+    prompts: Dict[str, str] = None
+
+    @staticmethod
+    def load(config_path: str = "config.yaml") -> 'Config':
+        """Load configuration from YAML file."""
+        default_prompts = {
+            "set_pwm_max": "把PWM调到最大",
+            "set_pwm_min": "把PWM调到最小",
+            "set_pwm_percent": "请将PWM设置为{value}%"
+        }
+
+        if not os.path.exists(config_path):
+            logger.info(f"No config file found at {config_path}, using defaults")
+            return Config(prompts=default_prompts)
+
+        try:
+            with open(config_path, 'r', encoding='utf-8') as f:
+                config_data = yaml.safe_load(f)
+            
+            return Config(
+                port=config_data.get('serial', {}).get('port'),
+                baud_rate=config_data.get('serial', {}).get('baud_rate', 115200),
+                timeout=config_data.get('serial', {}).get('timeout', 1.0),
+                prompts=config_data.get('prompts', default_prompts)
+            )
+        except Exception as e:
+            logger.warning(f"Error loading config: {e}, using defaults")
+            return Config(prompts=default_prompts)
+
+config = Config.load()
+
 class SerialConnection:
     """Serial port connection manager for PWM control."""
     
     def __init__(self):
         self.serial_port: Optional[serial.Serial] = None
-        self.baud_rate: int = 115200
-        self.timeout: float = 1.0
+        self.baud_rate: int = config.baud_rate
+        self.timeout: float = config.timeout
 
     def connect(self) -> bool:
         """Attempt to connect to an available serial port."""
@@ -31,6 +72,20 @@ class SerialConnection:
             logger.info(f"Already connected to serial port: {self.serial_port.port}")
             return True
             
+        # 如果配置文件中指定了端口，优先使用指定端口
+        if config.port:
+            try:
+                self.serial_port = serial.Serial(
+                    port=config.port,
+                    baudrate=self.baud_rate,
+                    timeout=self.timeout
+                )
+                logger.info(f"Successfully connected to configured port: {config.port}")
+                return True
+            except serial.SerialException as e:
+                logger.warning(f"Failed to connect to configured port {config.port}: {str(e)}")
+        
+        # 如果没有指定端口或指定端口连接失败，尝试自动查找可用端口
         ports = list(serial.tools.list_ports.comports())
         if not ports:
             logger.warning("No serial ports found")
