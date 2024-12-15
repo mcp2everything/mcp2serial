@@ -1,0 +1,25 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mcp2serial"
+version = "0.1.0"
+description = "MCP Serial Service for PWM Control"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pyserial>=3.5",
+    "mcp>=1.1.2",
+]
+
+[project.scripts]
+mcp2serial = "mcp2serial:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mcp2serial"]
