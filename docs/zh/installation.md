@@ -46,6 +46,18 @@ uv run src/mcp2serial/server.py
 
 ## 配置说明
 
+### 配置文件位置
+
+配置文件（`config.yaml`）可以放置在以下位置，程序会按顺序查找：
+
+1. 当前工作目录：`./config.yaml`
+2. 用户主目录：`~/.mcp2serial/config.yaml`
+3. 系统级配置：
+   - Windows：`C:\ProgramData\mcp2serial\config.yaml`
+   - Linux/Mac：`/etc/mcp2serial/config.yaml`
+
+程序会使用找到的第一个有效配置文件。
+
 ### 串口配置
 
 在 `config.yaml` 文件中配置串口参数：

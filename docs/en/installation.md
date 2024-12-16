@@ -46,6 +46,18 @@ uv run src/mcp2serial/server.py
 
 ## Configuration
 
+### Configuration File Location
+
+The configuration file (`config.yaml`) can be placed in several locations. The program will search for it in the following order:
+
+1. Current working directory: `./config.yaml`
+2. User's home directory: `~/.mcp2serial/config.yaml`
+3. System-wide configuration:
+   - Windows: `C:\ProgramData\mcp2serial\config.yaml`
+   - Linux/Mac: `/etc/mcp2serial/config.yaml`
+
+The first valid configuration file found will be used.
+
 ### Serial Port Configuration
 
 Configure serial port parameters in `config.yaml`:

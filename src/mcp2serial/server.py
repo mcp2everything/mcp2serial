@@ -43,39 +43,56 @@ class Config:
     @staticmethod
     def load(config_path: str = "config.yaml") -> 'Config':
         """Load configuration from YAML file."""
-        if not os.path.exists(config_path):
-            logger.info(f"No config file found at {config_path}, using defaults")
-            return Config()
+        # 定义可能的配置文件位置
+        config_paths = [
+            config_path,  # 首先检查指定的路径
+            os.path.join(os.getcwd(), "config.yaml"),  # 当前工作目录
+            os.path.expanduser("~/.mcp2serial/config.yaml"),  # 用户主目录
+        ]
+        
+        # 添加系统级目录
+        if os.name == 'nt':  # Windows
+            config_paths.append(os.path.join(os.environ.get("ProgramData", "C:\\ProgramData"),
+                                           "mcp2serial", "config.yaml"))
+        else:  # Linux/Mac
+            config_paths.append("/etc/mcp2serial/config.yaml")
 
-        try:
-            with open(config_path, 'r', encoding='utf-8') as f:
-                config_data = yaml.safe_load(f)
-            
-            # Load serial configuration
-            serial_config = config_data.get('serial', {})
-            config = Config(
-                port=serial_config.get('port'),
-                baud_rate=serial_config.get('baud_rate', 115200),
-                timeout=serial_config.get('timeout', 1.0),
-                read_timeout=serial_config.get('read_timeout', 1.0)
-            )
+        # 尝试从每个位置加载配置
+        for path in config_paths:
+            if os.path.exists(path):
+                try:
+                    with open(path, 'r', encoding='utf-8') as f:
+                        config_data = yaml.safe_load(f)
+                    logger.info(f"Loading configuration from {path}")
+                    
+                    # Load serial configuration
+                    serial_config = config_data.get('serial', {})
+                    config = Config(
+                        port=serial_config.get('port'),
+                        baud_rate=serial_config.get('baud_rate', 115200),
+                        timeout=serial_config.get('timeout', 1.0),
+                        read_timeout=serial_config.get('read_timeout', 1.0)
+                    )
 
-            # Load commands
-            commands_data = config_data.get('commands', {})
-            for cmd_id, cmd_data in commands_data.items():
-                raw_command = cmd_data.get('command', '')
-                logger.debug(f"Loading command {cmd_id}: {repr(raw_command)}")  # 使用repr()显示转义字符
-                config.commands[cmd_id] = Command(
-                    command=raw_command,  # 不要对命令字符串做任何处理
-                    need_parse=cmd_data.get('need_parse', False),
-                    prompts=cmd_data.get('prompts', [])
-                )
-                logger.debug(f"Loaded command {cmd_id}: {repr(config.commands[cmd_id].command)}")
+                    # Load commands
+                    commands_data = config_data.get('commands', {})
+                    for cmd_id, cmd_data in commands_data.items():
+                        raw_command = cmd_data.get('command', '')
+                        logger.debug(f"Loading command {cmd_id}: {repr(raw_command)}")
+                        config.commands[cmd_id] = Command(
+                            command=raw_command,
+                            need_parse=cmd_data.get('need_parse', False),
+                            prompts=cmd_data.get('prompts', [])
+                        )
+                        logger.debug(f"Loaded command {cmd_id}: {repr(config.commands[cmd_id].command)}")
 
-            return config
-        except Exception as e:
-            logger.warning(f"Error loading config: {e}, using defaults")
-            return Config()
+                    return config
+                except Exception as e:
+                    logger.warning(f"Error loading config from {path}: {e}")
+                    continue
+
+        logger.info("No valid config file found, using defaults")
+        return Config()
 
 config = Config.load()
 

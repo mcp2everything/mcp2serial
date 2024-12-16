@@ -4,15 +4,36 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mcp2serial"
-version = "0.1.0"
+version = "0.1.1"
 description = "MCP Serial Service for PWM Control"
-readme = "README.md"
+readme = "README_PYPI.md"  # 使用PyPI专用README
 requires-python = ">=3.11"
+license = "MIT"
+authors = [
+    { name = "MCP2Everything Team" }
+]
+keywords = ["mcp", "serial", "pwm", "ai", "llm"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Hardware",
+    "Topic :: Scientific/Engineering",
+]
 dependencies = [
     "pyserial>=3.5",
     "mcp>=1.1.2",
     "pyyaml>=6.0.1",
 ]
+
+[project.urls]
+Homepage = "https://github.com/mcp2everything/mcp2serial"
+Documentation = "https://github.com/mcp2everything/mcp2serial/tree/main/docs"
+Repository = "https://github.com/mcp2everything/mcp2serial.git"
+Issues = "https://github.com/mcp2everything/mcp2serial/issues"
 
 [project.scripts]
 mcp2serial = "mcp2serial:main"
