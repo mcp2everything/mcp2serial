@@ -7,6 +7,20 @@
     <p>通过自然语言控制硬件，开启物联网新纪元</p>
 </div>
 
+## 系统架构
+
+<div align="center">
+    <img src="docs/images/stru_chs.png" alt="系统架构图" width="800"/>
+    <p>MCP2Serial 系统架构图</p>
+</div>
+
+## 工作流程
+
+<div align="center">
+    <img src="docs/images/workflow_chs.png" alt="工作流程图" width="800"/>
+    <p>MCP2Serial 工作流程图</p>
+</div>
+
 ## 项目愿景
 
 MCP2Serial 是一个革命性的项目，它通过 Model Context Protocol (MCP) 将物理世界与 AI 大模型无缝连接。想象一下：
@@ -20,11 +34,6 @@ MCP2Serial 是一个革命性的项目，它通过 Model Context Protocol (MCP) 
   - 自动检测和配置串口设备
   - 支持多种波特率（默认 115200）
   - 实时状态监控和错误处理
-
-- **强大的 PWM 控制**
-  - 精确的频率控制（0-100Hz）
-  - 实时反馈和状态报告
-  - 支持多通道控制
 
 - **MCP 协议集成**
   - 完整支持 Model Context Protocol
@@ -65,13 +74,9 @@ MCP2Serial 支持所有实现了 MCP 协议的客户端，包括：
 
 ### 安装
 ```bash
-# TODO: 即将发布到PyPI
-# 目前请通过源码安装：
-git clone https://github.com/mcp2everything/mcp2serial.git
-cd mcp2serial
-uv venv .venv
-.venv\Scripts\activate
-uv pip install -r requirements.txt
+pip install mcp2serial
+或者
+uv pip install mcp2serial
 ```
 
 ### 基本配置
@@ -106,6 +111,21 @@ uv pip install -r requirements.txt
 
 > 注意：配置中的路径必须使用完整的绝对路径，并且使用正斜杠（/）或双反斜杠（\\）作为路径分隔符。
 
+配置串口和命令：
+```yaml
+# config.yaml
+serial:
+  port: COM11  # 或自动检测
+  baud_rate: 115200
+
+commands:
+  set_pwm:
+    command: "PWM {frequency}\n"
+    need_parse: false
+    prompts:
+      - "把PWM调到{value}"
+```
+
 ### 硬件连接
 
 1. 将你的设备通过USB连接到电脑
@@ -113,24 +133,105 @@ uv pip install -r requirements.txt
 3. 在`config.yaml`中配置正确的端口号和波特率
 
 <div align="center">
-    <img src="docs/images/hardware_connection.png" alt="硬件连接示例" width="600"/>
+    <img src="docs/images/wiring.svg" alt="硬件连接示例" width="600"/>
     <p>硬件连接和COM端口配置</p>
 </div>
 
-### 验证安装
-
-运行以下命令测试串口通信：
-
-```bash
-uv run python tests/test_basic_serial.py
-```
-
-如果一切正常，你将看到类似这样的输出：
+### 启动客户端Claude 桌面版或Cline
 
 <div align="center">
-    <img src="docs/images/test_output.png" alt="测试输出示例" width="600"/>
-    <p>测试命令输出示例</p>
+    <img src="docs/images/pwm.png" alt="Cline Configuration Example" width="600"/>
+    <p> Example in Claude</p>
 </div>
+<div align="center">
+    <img src="docs/images/test_output.png" alt="Cline Configuration Example" width="600"/>
+    <p>Example in Cline</p>
+</div>
+
+### 从源码快速开始
+```bash
+# 通过源码安装：
+git clone https://github.com/mcp2everything/mcp2serial.git
+cd mcp2serial
+uv venv .venv
+.venv\Scripts\activate
+uv pip install -r requirements.txt
+```
+1. 安装依赖：
+```bash
+# 进入项目目录
+cd mcp2serial
+
+# 创建虚拟环境并安装依赖
+uv venv .venv
+.venv\Scripts\activate
+uv pip install -r requirements.txt
+```
+
+2. 配置串口和命令：
+```yaml
+# config.yaml
+serial:
+  port: COM11  # 或自动检测
+  baud_rate: 115200
+
+commands:
+  set_pwm:
+    command: "PWM {frequency}\n"
+    need_parse: false
+    prompts:
+      - "把PWM调到{value}"
+```
+
+3. 运行服务器：
+```bash
+# 确保已激活虚拟环境
+.venv\Scripts\activate
+
+# 运行服务器
+uv run src/mcp2serial/server.py
+```
+
+## 文档
+
+- [安装指南](./docs/zh/installation.md)
+- [API文档](./docs/zh/api.md)
+- [配置说明](./docs/zh/configuration.md)
+
+## 示例
+
+### 1. 简单命令配置
+```yaml
+commands:
+  led_control:
+    command: "LED {state}\n"
+    need_parse: false
+    prompts:
+      - "打开LED"
+      - "关闭LED"
+      - "设置LED状态为{state}"
+```
+
+### 2. 带响应解析的命令
+```yaml
+commands:
+  get_sensor:
+    command: "GET_SENSOR\n"
+    need_parse: true
+    prompts:
+      - "获取传感器数据"
+```
+
+响应示例：
+```python
+{
+    "status": "success",
+    "result": {
+        "raw": "OK TEMP=25.5"
+    }
+}
+```
+
 
 ## 应用场景
 
@@ -238,100 +339,3 @@ MCP2Serial 正在开启物联网的新篇章：
 ## 许可证
 
 本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件
-
-## 中文版README
-
-MCP2Serial 是一个基于 MCP 服务接口协议的串口通信服务器，用于与串口设备进行通信。它提供了一个简单的配置方式来定义和管理串口命令。
-
-### 特性
-
-- 🔌 自动串口检测和连接管理
-- 📝 简单的 YAML 配置文件
-- 🛠️ 可自定义命令和响应解析
-- 🌐 支持多语言提示
-- 🚀 异步通信支持
-
-### 快速开始
-
-1. 安装依赖：
-```bash
-# 进入项目目录
-cd mcp2serial
-
-# 创建虚拟环境并安装依赖
-uv venv .venv
-.venv\Scripts\activate
-uv pip install -r requirements.txt
-```
-
-2. 配置串口和命令：
-```yaml
-# config.yaml
-serial:
-  port: COM11  # 或自动检测
-  baud_rate: 115200
-
-commands:
-  set_pwm:
-    command: "PWM {frequency}\n"
-    need_parse: false
-    prompts:
-      - "把PWM调到{value}"
-```
-
-3. 运行服务器：
-```bash
-# 确保已激活虚拟环境
-.venv\Scripts\activate
-
-# 运行服务器
-uv run src/mcp2serial/server.py
-```
-
-## 文档
-
-- [安装指南](./docs/zh/installation.md)
-- [API文档](./docs/zh/api.md)
-- [配置说明](./docs/zh/configuration.md)
-
-## 示例
-
-### 1. 简单命令配置
-```yaml
-commands:
-  led_control:
-    command: "LED {state}\n"
-    need_parse: false
-    prompts:
-      - "打开LED"
-      - "关闭LED"
-      - "设置LED状态为{state}"
-```
-
-### 2. 带响应解析的命令
-```yaml
-commands:
-  get_sensor:
-    command: "GET_SENSOR\n"
-    need_parse: true
-    prompts:
-      - "获取传感器数据"
-```
-
-响应示例：
-```python
-{
-    "status": "success",
-    "result": {
-        "raw": "OK TEMP=25.5"
-    }
-}
-```
-
-## 贡献
-
-欢迎提交 Issue 和 Pull Request！
-
-## 许可证
-
-MIT License

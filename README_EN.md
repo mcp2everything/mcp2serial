@@ -21,12 +21,27 @@ MCP2Serial is a serial communication server based on the MCP service interface p
 - Comprehensive error handling and status feedback
 - Cross-platform support (Windows, Linux, macOS)
 
+## System Architecture
+
+<div align="center">
+    <img src="docs/images/stru_eng.png" alt="System Architecture" width="800"/>
+    <p>MCP2Serial System Architecture</p>
+</div>
+
+## Workflow
+
+<div align="center">
+    <img src="docs/images/workflow_eng.png" alt="Workflow Diagram" width="800"/>
+    <p>MCP2Serial Workflow Diagram</p>
+</div>
+
 ## Quick Start
 
-1. Install dependencies:
+1. Install:
 ```bash
-uv venv
-uv pip install -r requirements.txt
+pip install mcp2serial
+or
+uv pip install mcp2serial
 ```
 
 2. Configure serial port and commands:
@@ -44,10 +59,62 @@ commands:
       - "Set PWM to {value}%"
 ```
 
-3. Run the server:
-```bash
-uv run src/mcp2serial/server.py
+
+3.MCP json Configuration
+
+Add the following to your MCP client (like Claude Desktop or Cline) configuration file, making sure to update the path to your actual installation path:
+
+```json
+{
+    "mcpServers": {
+        "mcp2serial": {
+            "command": "uv",
+            "args": [
+                "--directory",
+                "your_actual_path/mcp2serial",  // Example: "C:/Users/Administrator/Documents/develop/my-mcp-server/mcp2serial"
+                "run",
+                "mcp2serial"
+            ]
+        }
+    }
+}
 ```
+
+<div align="center">
+    <img src="docs/images/client_config.png" alt="Client Configuration Example" width="600"/>
+    <p>Configuration Example in Claude Desktop</p>
+</div>
+
+<div align="center">
+    <img src="docs/images/cline_config.png" alt="Cline Configuration Example" width="600"/>
+    <p>Configuration Example in Cline</p>
+</div>
+
+> **Note:** The path must be an absolute path and use forward slashes (/) or double backslashes (\\) as path separators.
+
+4. launch your client(claude desktop or cline):
+
+
+## Interacting with Claude
+
+Once the service is running, you can control PWM through natural language conversations with Claude. Here are some example prompts:
+
+- "Set PWM to 50%"
+- "Turn PWM to maximum"
+- "Turn off PWM output"
+- "Adjust PWM frequency to 75%"
+- "Can you set PWM to 25%?"
+
+Claude will understand your intent and automatically invoke the appropriate commands. No need to remember specific command formats - just express your needs in natural language.
+
+<div align="center">
+    <img src="docs/images/pwm.png" alt="Cline Configuration Example" width="600"/>
+    <p> Example in Claude</p>
+</div>
+<div align="center">
+    <img src="docs/images/test_output.png" alt="Cline Configuration Example" width="600"/>
+    <p>Example in Cline</p>
+</div>
 
 ## Documentation
 
@@ -94,10 +161,10 @@ Response example:
 - pyserial
 - mcp
 
-## Installation
-
+## Installation from source code
+ 
 ```bash
-# Clone the repository
+# source codeClone the repository
 git clone https://github.com/mcp2everything/mcp2serial.git
 cd mcp2serial
 uv venv .venv
@@ -118,75 +185,6 @@ This command will:
 2. Install it in the current environment
 3. Start the server
 
-## Configuration
-
-### Basic Configuration
-
-Add the following to your MCP client (like Claude Desktop or Cline) configuration file, making sure to update the path to your actual installation path:
-
-```json
-{
-    "mcpServers": {
-        "mcp2serial": {
-            "command": "uv",
-            "args": [
-                "--directory",
-                "your_actual_path/mcp2serial",  // Example: "C:/Users/Administrator/Documents/develop/my-mcp-server/mcp2serial"
-                "run",
-                "mcp2serial"
-            ]
-        }
-    }
-}
-```
-
-<div align="center">
-    <img src="/docs/images/client_config.png" alt="Client Configuration Example" width="600"/>
-    <p>Configuration Example in Claude Desktop</p>
-</div>
-
-<div align="center">
-    <img src="/docs/images/cline_config.png" alt="Cline Configuration Example" width="600"/>
-    <p>Configuration Example in Cline</p>
-</div>
-
-> **Note:** The path must be an absolute path and use forward slashes (/) or double backslashes (\\) as path separators.
-
-## Interacting with Claude
-
-Once the service is running, you can control PWM through natural language conversations with Claude. Here are some example prompts:
-
-- "Set PWM to 50%"
-- "Turn PWM to maximum"
-- "Turn off PWM output"
-- "Adjust PWM frequency to 75%"
-- "Can you set PWM to 25%?"
-
-Claude will understand your intent and automatically invoke the appropriate commands. No need to remember specific command formats - just express your needs in natural language.
-
-## API Reference
-
-The service provides the following tool:
-
-### set-pwm
-
-Controls PWM frequency.
-
-Parameters:
-- `frequency`: Integer between 0 and 100
-  - 0: Off
-  - 100: Maximum output
-  - Any value in between: Proportional output
-
-Returns:
-- Success: `{"status": "success", "message": "OK"}`
-- Failure: `{"error": "error message"}`
-
-Possible error messages:
-- "Frequency must be between 0 and 100"
-- "No available serial port found"
-- "Serial communication error: ..."
-- "Unexpected response: ..."
 
 ## Contributing
 
