@@ -11,11 +11,6 @@ Connect AI Large Language Models to hardware devices through the Model Context P
   - Multiple baud rate support (default 115200)
   - Real-time status monitoring and error handling
 
-- **PWM Control**
-  - Precise frequency control (0-100Hz)
-  - Real-time feedback
-  - Multi-channel support
-
 - **MCP Protocol Integration**
   - Full Model Context Protocol support
   - Resource management and tool invocation
@@ -25,12 +20,9 @@ Connect AI Large Language Models to hardware devices through the Model Context P
 
 MCP2Serial supports all clients implementing the MCP protocol, including:
 
-- Claude Desktop (Full support)
-- Continue (Full support)
-- Cline (Resource + Tools)
-- Zed (Basic support)
-- Sourcegraph Cody (Resource support)
-- Firebase Genkit (Partial support)
+- Claude Desktop (Test ok)
+- Continue (Should work)
+- Cline (Test ok)
 
 ## Quick Start
 
@@ -78,19 +70,36 @@ If `port` is not specified, the program will automatically search for available 
 
 ## Configuration File Location
 
-The configuration file (`config.yaml`) can be placed in several locations. The program will search for it in the following order:
+The configuration file (`config.yaml`) can be placed in different locations depending on your needs. The program searches for the configuration file in the following order:
 
-1. Current working directory: `./config.yaml`
-2. User's home directory: `~/.mcp2serial/config.yaml`
-3. System-wide configuration:
-   - Windows: `C:\ProgramData\mcp2serial\config.yaml`
-   - Linux/Mac: `/etc/mcp2serial/config.yaml`
+### 1. Current Working Directory (For Development)
+- Path: `./config.yaml`
+- Example: If you run the program from `C:\Projects`, it will look for `C:\Projects\config.yaml`
+- Best for: Development and testing
+- No special permissions required
 
-The first valid configuration file found will be used.
+### 2. User's Home Directory (Recommended for Personal Use)
+- Windows: `C:\Users\YourName\.mcp2serial\config.yaml`
+- macOS: `/Users/YourName/.mcp2serial/config.yaml`
+- Linux: `/home/username/.mcp2serial/config.yaml`
+- Best for: Personal configuration
+- Create the `.mcp2serial` directory if it doesn't exist
+- No special permissions required
+
+### 3. System-wide Configuration (For Multi-user Setup)
+- Windows: `C:\ProgramData\mcp2serial\config.yaml` (requires admin rights)
+- macOS/Linux: `/etc/mcp2serial/config.yaml` (requires sudo/root)
+- Best for: Shared configuration in multi-user environments
+- Create the directory with appropriate permissions
+
+The program will use the first valid configuration file it finds in this order. Choose the location based on your needs:
+- For testing: use current directory
+- For personal use: use home directory (recommended)
+- For system-wide settings: use ProgramData or /etc
 
 ## Serial Port Configuration
 
-Create a `config.yaml` file in one of the above locations with the following structure:
+Create your `config.yaml` in one of the above locations with the following structure:
 
 ```yaml
 serial:
@@ -106,7 +115,7 @@ commands:
 
 ## Command Configuration
 
-Add custom commands in `config.yaml`:
+Add or remove custom commands in `config.yaml`:
 
 ```yaml
 commands:

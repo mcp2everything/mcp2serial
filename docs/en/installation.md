@@ -48,15 +48,59 @@ uv run src/mcp2serial/server.py
 
 ### Configuration File Location
 
-The configuration file (`config.yaml`) can be placed in several locations. The program will search for it in the following order:
+The configuration file (`config.yaml`) can be placed in different locations depending on your needs:
 
-1. Current working directory: `./config.yaml`
-2. User's home directory: `~/.mcp2serial/config.yaml`
-3. System-wide configuration:
-   - Windows: `C:\ProgramData\mcp2serial\config.yaml`
-   - Linux/Mac: `/etc/mcp2serial/config.yaml`
+#### 1. Current Working Directory (For Development)
+- Path: `./config.yaml`
+- Example: If you run the program from `C:\Projects`, it will look for `C:\Projects\config.yaml`
+- Best for: Development and testing
+- No special permissions required
 
-The first valid configuration file found will be used.
+#### 2. User's Home Directory (Recommended for Personal Use)
+```bash
+# Windows
+C:\Users\YourName\.mcp2serial\config.yaml
+
+# macOS
+/Users/YourName/.mcp2serial/config.yaml
+
+# Linux
+/home/username/.mcp2serial/config.yaml
+```
+- Best for: Personal configuration
+- Create the `.mcp2serial` directory if it doesn't exist:
+  ```bash
+  # Windows (in Command Prompt)
+  mkdir "%USERPROFILE%\.mcp2serial"
+  
+  # macOS/Linux
+  mkdir -p ~/.mcp2serial
+  ```
+
+#### 3. System-wide Configuration (For Multi-user Setup)
+```bash
+# Windows (requires admin rights)
+C:\ProgramData\mcp2serial\config.yaml
+
+# macOS/Linux (requires sudo/root)
+/etc/mcp2serial/config.yaml
+```
+- Best for: Shared configuration in multi-user environments
+- Create the directory with appropriate permissions:
+  ```bash
+  # Windows (as administrator)
+  mkdir "C:\ProgramData\mcp2serial"
+  
+  # macOS/Linux (as root)
+  sudo mkdir -p /etc/mcp2serial
+  sudo chown root:root /etc/mcp2serial
+  sudo chmod 755 /etc/mcp2serial
+  ```
+
+The program searches for the configuration file in this order and uses the first valid file it finds. Choose the location based on your needs:
+- For testing: use current directory
+- For personal use: use home directory (recommended)
+- For system-wide settings: use ProgramData or /etc
 
 ### Serial Port Configuration
 

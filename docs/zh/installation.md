@@ -48,15 +48,59 @@ uv run src/mcp2serial/server.py
 
 ### 配置文件位置
 
-配置文件（`config.yaml`）可以放置在以下位置，程序会按顺序查找：
+配置文件（`config.yaml`）可以放在不同位置，程序会按以下顺序查找：
 
-1. 当前工作目录：`./config.yaml`
-2. 用户主目录：`~/.mcp2serial/config.yaml`
-3. 系统级配置：
-   - Windows：`C:\ProgramData\mcp2serial\config.yaml`
-   - Linux/Mac：`/etc/mcp2serial/config.yaml`
+#### 1. 当前工作目录（适合开发测试）
+- 路径：`./config.yaml`
+- 示例：如果你在 `C:\Projects` 运行程序，它会查找 `C:\Projects\config.yaml`
+- 适用场景：开发和测试
+- 不需要特殊权限
 
-程序会使用找到的第一个有效配置文件。
+#### 2. 用户主目录（推荐个人使用）
+```bash
+# Windows系统
+C:\Users\用户名\.mcp2serial\config.yaml
+
+# macOS系统
+/Users/用户名/.mcp2serial/config.yaml
+
+# Linux系统
+/home/用户名/.mcp2serial/config.yaml
+```
+- 适用场景：个人配置
+- 需要创建 `.mcp2serial` 目录：
+  ```bash
+  # Windows系统（在命令提示符中）
+  mkdir "%USERPROFILE%\.mcp2serial"
+  
+  # macOS/Linux系统
+  mkdir -p ~/.mcp2serial
+  ```
+
+#### 3. 系统级配置（适合多用户环境）
+```bash
+# Windows系统（需要管理员权限）
+C:\ProgramData\mcp2serial\config.yaml
+
+# macOS/Linux系统（需要root权限）
+/etc/mcp2serial/config.yaml
+```
+- 适用场景：多用户共享配置
+- 创建目录并设置权限：
+  ```bash
+  # Windows系统（以管理员身份运行）
+  mkdir "C:\ProgramData\mcp2serial"
+  
+  # macOS/Linux系统（以root身份运行）
+  sudo mkdir -p /etc/mcp2serial
+  sudo chown root:root /etc/mcp2serial
+  sudo chmod 755 /etc/mcp2serial
+  ```
+
+程序会按照上述顺序查找配置文件，使用找到的第一个有效配置文件。根据你的需求选择合适的位置：
+- 开发测试：使用当前目录
+- 个人使用：建议使用用户主目录（推荐）
+- 多用户环境：使用系统级配置（ProgramData或/etc）
 
 ### 串口配置
 
