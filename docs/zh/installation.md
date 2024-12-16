@@ -1,83 +1,130 @@
-# 安装指南
+# MCP2Serial 安装指南
 
-## 系统要求
+## 环境要求
 
 - Python 3.11 或更高版本
-- pip 或 uv 包管理器
-- 串口访问权限（某些系统可能需要管理员权限）
+- uv 包管理器
+- 串口设备（如Arduino、树莓派Pico等）
 
 ## 安装步骤
 
-### 1. 使用 pip 安装
+1. 创建并激活虚拟环境：
 
 ```bash
-pip install mcp2serial
-```
-
-### 2. 从源码安装
-
-```bash
-# 克隆仓库
-git clone https://github.com/yourusername/mcp2serial.git
+# 进入项目目录
 cd mcp2serial
 
-# 以开发模式安装
-pip install -e .
+# 使用 uv 创建虚拟环境并安装依赖
+uv venv .venv
+.venv\Scripts\activate
+
+# 安装依赖
+uv pip install -r requirements.txt
+```
+
+## 运行服务器
+
+```bash
+# 确保在项目根目录下
+cd mcp2serial
+
+# 激活虚拟环境（如果尚未激活）
+.venv\Scripts\activate
+
+# 运行服务器
+uv run src/mcp2serial/server.py
 ```
 
 ## 配置说明
 
-### 串口设置
+### 串口配置
 
-服务会自动检测可用的串口。但您也可以在配置文件中指定特定串口：
+在 `config.yaml` 文件中配置串口参数：
 
-1. 在工作目录创建 `config.yaml`：
 ```yaml
 serial:
-  port: COM1  # Windows系统
-  # port: /dev/ttyUSB0  # Linux系统
-  # port: /dev/tty.usbserial-*  # macOS系统
-  baud_rate: 115200
+  port: COM11  # Windows系统示例，Linux下可能是 /dev/ttyUSB0
+  baud_rate: 115200  # 波特率
+  timeout: 1.0  # 串口超时时间（秒）
+  read_timeout: 0.5  # 读取超时时间（秒）
 ```
 
-### Claude 集成
+如果不指定 `port`，程序会自动搜索可用的串口设备。
 
-1. 在 Claude 配置中添加以下内容：
-```json
-{
-    "mcpServers": {
-        "mcp2serial": {
-            "command": "uv",
-            "args": [
-                "--directory",
-                "path/to/mcp2serial",
-                "run",
-                "mcp2serial"
-            ]
-        }
-    }
-}
+### 命令配置
+
+在 `config.yaml` 中添加自定义命令：
+
+```yaml
+commands:
+  # PWM控制命令示例
+  set_pwm:
+    command: "PWM {frequency}\n"  # 实际发送的命令格式
+    need_parse: false  # 不需要解析响应
+    prompts:  # 提示语列表
+      - "把PWM调到{value}"
+      - "关闭PWM"
+
+  # LED控制命令示例
+  led_control:
+    command: "LED {state}\n"  # state可以是on/off或其他值
+    need_parse: false
+    prompts:
+      - "打开LED"
+      - "关闭LED"
+      - "设置LED状态为{state}"
+
+  # 带响应解析的命令示例
+  get_sensor:
+    command: "GET_SENSOR\n"
+    need_parse: true  # 需要解析响应
+    prompts:
+      - "读取传感器数据"
 ```
 
-## 常见问题解决
+### 响应解析说明
 
-### 常见问题
+1. 简单响应（`need_parse: false`）：
+   - 设备返回 "OK" 开头的消息表示成功
+   - 其他响应将被视为错误
 
-1. 权限被拒绝
-   - Windows：以管理员身份运行
-   - Linux/macOS：将用户添加到 dialout 组
-     ```bash
-     sudo usermod -a -G dialout $USER
-     ```
+2. 需要解析的响应（`need_parse: true`）：
+   - 完整响应将在 `result.raw` 字段中返回
+   - 可以在应用层进行进一步解析
 
-2. 找不到端口
-   - 检查设备是否正确连接
-   - 在设备管理器中验证端口名称
-   - 尝试不同的 USB 端口
+响应示例：
+```python
+# 简单响应
+{"status": "success"}
 
-### 获取帮助
+# 需要解析的响应
+{"status": "success", "result": {"raw": "OK TEMP=25.5,HUMIDITY=60%"}}
+```
 
-如果遇到问题：
-1. 查看我们的[常见问题](./faq.md)
-2. 在 GitHub 上提交 Issue
-3. 加入社区讨论
+## 故障排除
+
+1. 串口连接问题：
+   - 确认设备已正确连接
+   - 检查串口号是否正确
+   - 验证波特率设置
+   - 检查串口权限（Linux系统）
+
+2. 命令超时：
+   - 检查 `timeout` 和 `read_timeout` 设置
+   - 确认设备响应时间
+
+## 测试
+
+运行测试用例：
+
+```bash
+# 激活虚拟环境（如果尚未激活）
+.venv\Scripts\activate
+
+# 运行测试
+uv run pytest tests/
+```
+
+## 更多信息
+
+详细的API文档和示例请参考 [API文档](../api.md)。

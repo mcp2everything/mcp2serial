@@ -6,15 +6,87 @@ English | [简体中文](README.md)
     <img src="docs/images/logo.png" alt="MCP2Serial Logo" width="200"/>
 </div>
 
-A Claude MCP protocol-based serial communication service for PWM frequency control.
+MCP2Serial is a serial communication server based on the MCP service interface protocol, designed for communication with serial devices. It provides a simple configuration approach for defining and managing serial commands.
 
 ## Features
 
+- 🔌 Automatic serial port detection and connection management
+- 📝 Simple YAML configuration
+- 🛠️ Customizable commands and response parsing
+- 🌐 Multi-language prompt support
+- 🚀 Asynchronous communication support
 - Auto-detect and connect to serial ports at 115200 baud rate
 - Control PWM frequency (range: 0-100)
 - Compliant with Claude MCP protocol
 - Comprehensive error handling and status feedback
 - Cross-platform support (Windows, Linux, macOS)
+
+## Quick Start
+
+1. Install dependencies:
+```bash
+uv venv
+uv pip install -r requirements.txt
+```
+
+2. Configure serial port and commands:
+```yaml
+# config.yaml
+serial:
+  port: COM11  # or auto-detect
+  baud_rate: 115200
+
+commands:
+  set_pwm:
+    command: "PWM {frequency}\n"
+    need_parse: false
+    prompts:
+      - "Set PWM to {value}%"
+```
+
+3. Run the server:
+```bash
+uv run src/mcp2serial/server.py
+```
+
+## Documentation
+
+- [Installation Guide](./docs/en/installation.md)
+- [API Documentation](./docs/en/api.md)
+- [Configuration Guide](./docs/en/configuration.md)
+
+## Examples
+
+### 1. Simple Command Configuration
+```yaml
+commands:
+  led_control:
+    command: "LED {state}\n"
+    need_parse: false
+    prompts:
+      - "Turn on LED"
+      - "Turn off LED"
+```
+
+### 2. Command with Response Parsing
+```yaml
+commands:
+  get_temperature:
+    command: "GET_TEMP\n"
+    need_parse: true
+    prompts:
+      - "Get temperature"
+```
+
+Response example:
+```python
+{
+    "status": "success",
+    "result": {
+        "raw": "OK TEMP=25.5"
+    }
+}
+```
 
 ## Requirements
 

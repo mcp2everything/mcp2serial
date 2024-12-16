@@ -3,12 +3,33 @@ serial:
   port: COM11  # 可选，如果不指定则自动查找
   baud_rate: 115200  # 可选，默认 115200
   timeout: 1.0  # 可选，默认 1.0
+  read_timeout: 1.0  # 读取超时时间，1秒内不应答则报错
 
-prompts:
-  # 自定义提示词配置
-  set_pwm_max: "把PWM调到最大"
-  set_pwm_min: "把PWM调到最小"
-  set_pwm_percent: "请将PWM设置为{value}%"
-  # 可以添加更多自定义提示词
-  turn_off: "关闭PWM"
-  half_power: "把PWM调到一半"
+commands:
+  # PWM控制命令
+  set_pwm:
+    command: "PWM {frequency}\r\n"  # 实际发送的命令格式
+    need_parse: false  # 不需要解析响应内容
+    prompts:
+      - "把PWM调到最大"
+      - "把PWM调到最小"
+      - "请将PWM设置为{value}"
+      - "关闭PWM"
+      - "把PWM调到一半"
+
+  # PICO信息查询命令
+  get_pico_info:
+    command: "PICO_INFO\r\n"  # 实际发送的命令格式
+    need_parse: true  # 需要解析响应内容
+    prompts:
+      - "查询Pico板信息"
+      - "显示开发板状态"
+
+  # LED控制命令示例
+  led_control:
+    command: "LED {state}\n"  # state可以是on/off或其他值
+    need_parse: false
+    prompts:
+      - "打开LED"
+      - "关闭LED"
+      - "设置LED状态为{state}"

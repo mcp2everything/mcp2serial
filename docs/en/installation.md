@@ -1,83 +1,130 @@
-# Installation Guide
+# MCP2Serial Installation Guide
 
-## Prerequisites
+## Requirements
 
 - Python 3.11 or higher
-- pip or uv package manager
-- Serial port access rights (may require admin privileges on some systems)
+- uv package manager
+- Serial device (e.g., Arduino, Raspberry Pi Pico)
 
 ## Installation Steps
 
-### 1. Using pip
+1. Create and activate virtual environment:
 
 ```bash
-pip install mcp2serial
-```
-
-### 2. From Source
-
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/mcp2serial.git
+# Navigate to project directory
 cd mcp2serial
 
-# Install in development mode
-pip install -e .
+# Create virtual environment and install dependencies using uv
+uv venv .venv
+.venv\Scripts\activate
+
+# Install dependencies
+uv pip install -r requirements.txt
 ```
 
-## Configuration
+## Running the Server
 
-### Serial Port Setup
+```bash
+# Make sure you're in the project root directory
+cd mcp2serial
 
-The service automatically detects available serial ports. However, you can specify a particular port in the configuration:
+# Activate virtual environment (if not already activated)
+.venv\Scripts\activate
 
-1. Create a `config.yaml` in your working directory:
+# Run the server
+uv run src/mcp2serial/server.py
+```
+
+## Configuration Guide
+
+### Serial Port Configuration
+
+Configure serial port parameters in `config.yaml`:
+
 ```yaml
 serial:
-  port: COM1  # Windows
-  # port: /dev/ttyUSB0  # Linux
-  # port: /dev/tty.usbserial-*  # macOS
-  baud_rate: 115200
+  port: COM11  # Windows example, might be /dev/ttyUSB0 on Linux
+  baud_rate: 115200  # Baud rate
+  timeout: 1.0  # Serial timeout in seconds
+  read_timeout: 0.5  # Read timeout in seconds
 ```
 
-### Claude Integration
+If `port` is not specified, the program will automatically search for available serial ports.
 
-1. Add the following to your Claude configuration:
-```json
-{
-    "mcpServers": {
-        "mcp2serial": {
-            "command": "uv",
-            "args": [
-                "--directory",
-                "path/to/mcp2serial",
-                "run",
-                "mcp2serial"
-            ]
-        }
-    }
-}
+### Command Configuration
+
+Add custom commands in `config.yaml`:
+
+```yaml
+commands:
+  # PWM control command example
+  set_pwm:
+    command: "PWM {frequency}\n"  # Actual command format
+    need_parse: false  # No response parsing needed
+    prompts:  # Prompt list
+      - "Set PWM to {value}"
+      - "Turn off PWM"
+
+  # LED control command example
+  led_control:
+    command: "LED {state}\n"  # state can be on/off or other values
+    need_parse: false
+    prompts:
+      - "Turn on LED"
+      - "Turn off LED"
+      - "Set LED state to {state}"
+
+  # Command example with response parsing
+  get_sensor:
+    command: "GET_SENSOR\n"
+    need_parse: true  # Response needs parsing
+    prompts:
+      - "Read sensor data"
+```
+
+### Response Parsing Guide
+
+1. Simple Response (`need_parse: false`):
+   - Device response starting with "OK" indicates success
+   - Other responses are treated as errors
+
+2. Response Requiring Parsing (`need_parse: true`):
+   - Complete response is returned in the `result.raw` field
+   - Further parsing can be done at the application level
+
+Response examples:
+```python
+# Simple response
+{"status": "success"}
+
+# Response requiring parsing
+{"status": "success", "result": {"raw": "OK TEMP=25.5,HUMIDITY=60%"}}
 ```
 
 ## Troubleshooting
 
-### Common Issues
+1. Serial Port Connection Issues:
+   - Verify device connection
+   - Check port number
+   - Verify baud rate settings
+   - Check port permissions (Linux systems)
 
-1. Permission Denied
-   - Windows: Run as Administrator
-   - Linux/macOS: Add user to dialout group
-     ```bash
-     sudo usermod -a -G dialout $USER
-     ```
+2. Command Timeout:
+   - Check `timeout` and `read_timeout` settings
+   - Verify device response time
 
-2. Port Not Found
-   - Check if the device is properly connected
-   - Verify port name in device manager
-   - Try different USB ports
+## Testing
 
-### Getting Help
+Run test cases:
 
-If you encounter issues:
-1. Check our [FAQ](./faq.md)
-2. Open an issue on GitHub
-3. Join our community discussions
+```bash
+# Activate virtual environment (if not already activated)
+.venv\Scripts\activate
+
+# Run tests
+uv run pytest tests/
+```
+
+## More Information
+
+For detailed API documentation and examples, refer to the [API Documentation](../api.md).

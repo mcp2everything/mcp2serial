@@ -190,3 +190,100 @@ MCP2Serial 正在开启物联网的新篇章：
 ## 许可证
 
 本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件
+
+## 中文版README
+
+MCP2Serial 是一个基于 MCP 服务接口协议的串口通信服务器，用于与串口设备进行通信。它提供了一个简单的配置方式来定义和管理串口命令。
+
+### 特性
+
+- 🔌 自动串口检测和连接管理
+- 📝 简单的 YAML 配置文件
+- 🛠️ 可自定义命令和响应解析
+- 🌐 支持多语言提示
+- 🚀 异步通信支持
+
+### 快速开始
+
+1. 安装依赖：
+```bash
+# 进入项目目录
+cd mcp2serial
+
+# 创建虚拟环境并安装依赖
+uv venv .venv
+.venv\Scripts\activate
+uv pip install -r requirements.txt
+```
+
+2. 配置串口和命令：
+```yaml
+# config.yaml
+serial:
+  port: COM11  # 或自动检测
+  baud_rate: 115200
+
+commands:
+  set_pwm:
+    command: "PWM {frequency}\n"
+    need_parse: false
+    prompts:
+      - "把PWM调到{value}"
+```
+
+3. 运行服务器：
+```bash
+# 确保已激活虚拟环境
+.venv\Scripts\activate
+
+# 运行服务器
+uv run src/mcp2serial/server.py
+```
+
+## 文档
+
+- [安装指南](./docs/zh/installation.md)
+- [API文档](./docs/zh/api.md)
+- [配置说明](./docs/zh/configuration.md)
+
+## 示例
+
+### 1. 简单命令配置
+```yaml
+commands:
+  led_control:
+    command: "LED {state}\n"
+    need_parse: false
+    prompts:
+      - "打开LED"
+      - "关闭LED"
+      - "设置LED状态为{state}"
+```
+
+### 2. 带响应解析的命令
+```yaml
+commands:
+  get_sensor:
+    command: "GET_SENSOR\n"
+    need_parse: true
+    prompts:
+      - "获取传感器数据"
+```
+
+响应示例：
+```python
+{
+    "status": "success",
+    "result": {
+        "raw": "OK TEMP=25.5"
+    }
+}
+```
+
+## 贡献
+
+欢迎提交 Issue 和 Pull Request！
+
+## 许可证
+
+MIT License
