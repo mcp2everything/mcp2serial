@@ -6,7 +6,34 @@
 - uv 包管理器
 - 串口设备（如Arduino、树莓派Pico等）
 
-## 安装步骤
+### 安装
+
+#### Windows用户
+```bash
+# 下载安装脚本
+curl -O https://raw.githubusercontent.com/mcp2everything/mcp2serial/main/install.py
+
+# 运行安装脚本
+python install.py
+```
+
+#### MacOS用户
+```bash
+# 下载安装脚本
+curl -O https://raw.githubusercontent.com/mcp2everything/mcp2serial/main/install_macos.py
+
+# 运行安装脚本
+python3 install_macos.py
+```
+
+安装脚本会自动完成以下操作：
+- ✅ 检查系统环境
+- ✅ 安装必要的依赖
+- ✅ 创建默认配置文件
+- ✅ 配置Claude桌面版（如果已安装）
+- ✅ 检查串口设备
+
+## 源码开发步骤
 
 1. 克隆项目代码：
 

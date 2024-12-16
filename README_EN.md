@@ -37,12 +37,37 @@ MCP2Serial is a serial communication server based on the MCP service interface p
 
 ## Quick Start
 
-1. Install:
+### Prepare
+Python>=3.11 
+Claude Desktop or Cline+Vscode
+
+
+### Installation
+
+#### For Windows Users
 ```bash
-pip install mcp2serial
-or
-uv pip install mcp2serial
+# Download the installation script
+curl -O https://raw.githubusercontent.com/mcp2everything/mcp2serial/main/install.py
+
+# Run the installation script
+python install.py
 ```
+
+#### For MacOS Users
+```bash
+# Download the installation script
+curl -O https://raw.githubusercontent.com/mcp2everything/mcp2serial/main/install_macos.py
+
+# Run the installation script
+python3 install_macos.py
+```
+
+The installation script will automatically:
+- ✅ Check system environment
+- ✅ Install required dependencies
+- ✅ Create default configuration file
+- ✅ Configure Claude Desktop (if installed)
+- ✅ Check serial devices
 
 2. Configure serial port and commands:
 ```yaml
@@ -68,13 +93,8 @@ Add the following to your MCP client (like Claude Desktop or Cline) configuratio
 {
     "mcpServers": {
         "mcp2serial": {
-            "command": "uv",
-            "args": [
-                "--directory",
-                "your_actual_path/mcp2serial",  // Example: "C:/Users/Administrator/Documents/develop/my-mcp-server/mcp2serial"
-                "run",
-                "mcp2serial"
-            ]
+            "command": "uvx",
+            "args": ["mcp2serial"]
         }
     }
 }

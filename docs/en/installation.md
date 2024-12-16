@@ -6,7 +6,64 @@
 - uv package manager
 - Serial device (e.g., Arduino, Raspberry Pi Pico)
 
-## Installation Steps
+### Installation
+
+#### For Windows Users
+```bash
+# Download the installation script
+curl -O https://raw.githubusercontent.com/mcp2everything/mcp2serial/main/install.py
+
+# Run the installation script
+python install.py
+```
+
+#### For MacOS Users
+```bash
+# Download the installation script
+curl -O https://raw.githubusercontent.com/mcp2everything/mcp2serial/main/install_macos.py
+
+# Run the installation script
+python3 install_macos.py
+```
+
+The installation script will automatically:
+- ✅ Check system environment
+- ✅ Install required dependencies
+- ✅ Create default configuration file
+- ✅ Configure Claude Desktop (if installed)
+- ✅ Check serial devices
+
+2. Configure serial port and commands:
+```yaml
+# config.yaml
+serial:
+  port: COM11  # or auto-detect
+  baud_rate: 115200
+
+commands:
+  set_pwm:
+    command: "PWM {frequency}\n"
+    need_parse: false
+    prompts:
+      - "Set PWM to {value}%"
+```
+
+
+3.MCP json Configuration
+
+Add the following to your MCP client (like Claude Desktop or Cline) configuration file, making sure to update the path to your actual installation path:
+
+```json
+{
+    "mcpServers": {
+        "mcp2serial": {
+            "command": "uvx",
+            "args": ["mcp2serial"]
+        }
+    }
+}
+
+## Development Steps
 
 1. Clone the repository:
 

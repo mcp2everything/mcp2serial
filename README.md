@@ -72,14 +72,38 @@ MCP2Serial 支持所有实现了 MCP 协议的客户端，包括：
 
 ## 快速开始
 
+### 准备
+Python3.11 或更高版本
+Claude Desktop 或 Cline
+
 ### 安装
+
+#### Windows用户
 ```bash
-pip install mcp2serial
-或者
-uv pip install mcp2serial
+# 下载安装脚本
+curl -O https://raw.githubusercontent.com/mcp2everything/mcp2serial/main/install.py
+
+# 运行安装脚本
+python install.py
 ```
 
-### 基本配置
+#### MacOS用户
+```bash
+# 下载安装脚本
+curl -O https://raw.githubusercontent.com/mcp2everything/mcp2serial/main/install_macos.py
+
+# 运行安装脚本
+python3 install_macos.py
+```
+
+安装脚本会自动完成以下操作：
+- ✅ 检查系统环境
+- ✅ 安装必要的依赖
+- ✅ 创建默认配置文件
+- ✅ 配置Claude桌面版（如果已安装）
+- ✅ 检查串口设备
+
+### 基本配置(使用安装脚本时会自动配置，仅供学习用)
 
 在你的 MCP 客户端（如 Claude Desktop 或 Cline）配置文件中添加以下内容，注意将路径修改为你的实际安装路径：
 
@@ -87,13 +111,8 @@ uv pip install mcp2serial
 {
     "mcpServers": {
         "mcp2serial": {
-            "command": "uv",
-            "args": [
-                "--directory",
-                "你的实际路径/mcp2serial",  // 例如: "C:/Users/Administrator/Documents/develop/my-mcp-server/mcp2serial"
-                "run",
-                "mcp2serial"
-            ]
+            "command": "uvx",
+            "args": ["mcp2serial"]
         }
     }
 }
