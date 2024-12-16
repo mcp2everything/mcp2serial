@@ -20,7 +20,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # 添加版本号常量
-VERSION = "1.1.3"  # 添加了自动\r\n和更详细的错误信息
+VERSION = "0.1.0"  # 添加了自动\r\n和更详细的错误信息
 
 server = Server("mcp2serial")
 

@@ -8,7 +8,14 @@
 
 ## 安装步骤
 
-1. 创建并激活虚拟环境：
+1. 克隆项目代码：
+
+```bash
+# 克隆代码库
+git clone https://github.com/mcp2everything/mcp2serial.git
+```
+
+2. 创建并激活虚拟环境：
 
 ```bash
 # 进入项目目录
@@ -21,6 +28,8 @@ uv venv .venv
 # 安装依赖
 uv pip install -r requirements.txt
 ```
+
+> **注意：** 项目即将发布到PyPI，届时可以直接通过pip安装。
 
 ## 运行服务器
 
@@ -100,6 +109,56 @@ commands:
 # 需要解析的响应
 {"status": "success", "result": {"raw": "OK TEMP=25.5,HUMIDITY=60%"}}
 ```
+
+### MCP客户端配置
+
+在使用支持MCP协议的客户端（如Claude Desktop或Cline）时，需要在客户端的配置文件中添加以下内容：
+
+```json
+{
+    "mcpServers": {
+        "mcp2serial": {
+            "command": "uv",
+            "args": [
+                "--directory",
+                "你的实际路径/mcp2serial",  // 例如: "C:/Users/Administrator/Documents/develop/my-mcp-server/mcp2serial"
+                "run",
+                "mcp2serial"
+            ]
+        }
+    }
+}
+```
+
+<div align="center">
+    <img src="../images/client_config.png" alt="客户端配置示例" width="600"/>
+    <p>在 Claude Desktop 中的配置示例</p>
+</div>
+
+<div align="center">
+    <img src="../images/cline_config.png" alt="Cline配置示例" width="600"/>
+    <p>在 Cline 中的配置示例</p>
+</div>
+
+> **注意事项：**
+> 1. 路径必须使用完整的绝对路径
+> 2. 使用正斜杠（/）或双反斜杠（\\）作为路径分隔符
+> 3. 确保路径指向实际的项目安装目录
+
+### 验证配置
+
+运行以下测试命令验证配置是否正确：
+
+```bash
+uv run python tests/test_basic_serial.py
+```
+
+如果配置正确，你将看到类似这样的输出：
+
+<div align="center">
+    <img src="../images/test_output.png" alt="测试输出示例" width="600"/>
+    <p>测试命令输出示例</p>
+</div>
 
 ## 故障排除
 

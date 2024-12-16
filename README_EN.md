@@ -98,11 +98,11 @@ Response example:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/mcp2serial.git
+git clone https://github.com/mcp2everything/mcp2serial.git
 cd mcp2serial
-
-# Install dependencies
-uv pip install -e .
+uv venv .venv
+.venv\Scripts\activate
+uv pip install -r requirements.txt
 ```
 
 ## Running the Service
@@ -118,9 +118,11 @@ This command will:
 2. Install it in the current environment
 3. Start the server
 
-## Claude Configuration
+## Configuration
 
-Add the following configuration to your Claude config file:
+### Basic Configuration
+
+Add the following to your MCP client (like Claude Desktop or Cline) configuration file, making sure to update the path to your actual installation path:
 
 ```json
 {
@@ -129,7 +131,7 @@ Add the following configuration to your Claude config file:
             "command": "uv",
             "args": [
                 "--directory",
-                "C:\\path\\to\\mcp2serial",  // Use appropriate path format for your OS
+                "your_actual_path/mcp2serial",  // Example: "C:/Users/Administrator/Documents/develop/my-mcp-server/mcp2serial"
                 "run",
                 "mcp2serial"
             ]
@@ -138,11 +140,17 @@ Add the following configuration to your Claude config file:
 }
 ```
 
-Note: Replace `C:\\path\\to\\mcp2serial` with the actual path to your installation.
+<div align="center">
+    <img src="/docs/images/client_config.png" alt="Client Configuration Example" width="600"/>
+    <p>Configuration Example in Claude Desktop</p>
+</div>
 
-For different operating systems:
-- Windows: `C:\\path\\to\\mcp2serial`
-- Linux/macOS: `/path/to/mcp2serial`
+<div align="center">
+    <img src="/docs/images/cline_config.png" alt="Cline Configuration Example" width="600"/>
+    <p>Configuration Example in Cline</p>
+</div>
+
+> **Note:** The path must be an absolute path and use forward slashes (/) or double backslashes (\\) as path separators.
 
 ## Interacting with Claude
 
@@ -286,6 +294,6 @@ MCP2Serial is revolutionizing IoT with:
 ## Support
 
 If you encounter any issues or have questions:
-1. Check the [Issues](https://github.com/yourusername/mcp2serial/issues) page
-2. Read our [Wiki](https://github.com/yourusername/mcp2serial/wiki)
+1. Check the [Issues](https://github.com/mcp2everything/mcp2serial/issues) page
+2. Read our [Wiki](https://github.com/mcp2everything/mcp2serial/wiki)
 3. Create a new issue if needed

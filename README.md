@@ -65,24 +65,72 @@ MCP2Serial 支持所有实现了 MCP 协议的客户端，包括：
 
 ### 安装
 ```bash
-# 使用 uv 包管理器安装（推荐）
-uv pip install mcp2serial
-
-# 或使用传统的 pip
-pip install mcp2serial
+# TODO: 即将发布到PyPI
+# 目前请通过源码安装：
+git clone https://github.com/mcp2everything/mcp2serial.git
+cd mcp2serial
+uv venv .venv
+.venv\Scripts\activate
+uv pip install -r requirements.txt
 ```
 
 ### 基本配置
+
+在你的 MCP 客户端（如 Claude Desktop 或 Cline）配置文件中添加以下内容，注意将路径修改为你的实际安装路径：
+
 ```json
 {
     "mcpServers": {
         "mcp2serial": {
             "command": "uv",
-            "args": ["run", "mcp2serial"]
+            "args": [
+                "--directory",
+                "你的实际路径/mcp2serial",  // 例如: "C:/Users/Administrator/Documents/develop/my-mcp-server/mcp2serial"
+                "run",
+                "mcp2serial"
+            ]
         }
     }
 }
 ```
+
+<div align="center">
+    <img src="docs/images/client_config.png" alt="客户端配置示例" width="600"/>
+    <p>在 Claude Desktop 中的配置示例</p>
+</div>
+
+<div align="center">
+    <img src="docs/images/cline_config.png" alt="Cline配置示例" width="600"/>
+    <p>在 Cline 中的配置示例</p>
+</div>
+
+> 注意：配置中的路径必须使用完整的绝对路径，并且使用正斜杠（/）或双反斜杠（\\）作为路径分隔符。
+
+### 硬件连接
+
+1. 将你的设备通过USB连接到电脑
+2. 打开设备管理器，记下设备的COM端口号
+3. 在`config.yaml`中配置正确的端口号和波特率
+
+<div align="center">
+    <img src="docs/images/hardware_connection.png" alt="硬件连接示例" width="600"/>
+    <p>硬件连接和COM端口配置</p>
+</div>
+
+### 验证安装
+
+运行以下命令测试串口通信：
+
+```bash
+uv run python tests/test_basic_serial.py
+```
+
+如果一切正常，你将看到类似这样的输出：
+
+<div align="center">
+    <img src="docs/images/test_output.png" alt="测试输出示例" width="600"/>
+    <p>测试命令输出示例</p>
+</div>
 
 ## 应用场景
 
