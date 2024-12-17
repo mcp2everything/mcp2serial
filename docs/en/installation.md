@@ -63,43 +63,6 @@ Add the following to your MCP client (like Claude Desktop or Cline) configuratio
     }
 }
 
-## Development Steps
-
-1. Clone the repository:
-
-```bash
-# Clone the repository
-git clone https://github.com/mcp2everything/mcp2serial.git
-```
-
-2. Create and activate virtual environment:
-
-```bash
-# Navigate to project directory
-cd mcp2serial
-
-# Create virtual environment using uv
-uv venv .venv
-.venv\Scripts\activate
-
-# Install dependencies
-uv pip install -r requirements.txt
-```
-
-> **Note:** The project will be available on PyPI soon, enabling direct installation via pip.
-
-## Running the Server
-
-```bash
-# Ensure you're in the project root
-cd mcp2serial
-
-# Activate virtual environment (if not already activated)
-.venv\Scripts\activate
-
-# Run the server
-uv run src/mcp2serial/server.py
-```
 
 ## Configuration
 
@@ -179,10 +142,21 @@ When using MCP protocol-compatible clients (like Claude Desktop or Cline), add t
 {
     "mcpServers": {
         "mcp2serial": {
+            "command": "uvx",
+            "args": ["mcp2serial"]
+        }
+    }
+}
+```
+if you want to develop locally, you can use the following configuration:
+```json
+{
+    "mcpServers": {
+        "mcp2serial": {
             "command": "uv",
             "args": [
                 "--directory",
-                "your_actual_path/mcp2serial",  // Example: "C:/Users/Administrator/Documents/develop/my-mcp-server/mcp2serial"
+                "your project path/mcp2serial",  // ex: "C:/Users/Administrator/Documents/develop/my-mcp-server/mcp2serial"
                 "run",
                 "mcp2serial"
             ]
@@ -190,7 +164,6 @@ When using MCP protocol-compatible clients (like Claude Desktop or Cline), add t
     }
 }
 ```
-
 <div align="center">
     <img src="../images/client_config.png" alt="Client Configuration Example" width="600"/>
     <p>Configuration Example in Claude Desktop</p>
@@ -206,20 +179,43 @@ When using MCP protocol-compatible clients (like Claude Desktop or Cline), add t
 > 2. Use forward slashes (/) or double backslashes (\\) as path separators
 > 3. Ensure the path points to your actual project installation directory
 
-### Verifying Configuration
+## Development Steps
 
-Run the following test command to verify your configuration:
+1. Clone the repository:
 
 ```bash
-uv run python tests/test_basic_serial.py
+# Clone the repository
+git clone https://github.com/mcp2everything/mcp2serial.git
 ```
 
-If configured correctly, you should see output similar to this:
+2. Create and activate virtual environment:
 
-<div align="center">
-    <img src="../images/test_output.png" alt="Test Output Example" width="600"/>
-    <p>Test Command Output Example</p>
-</div>
+```bash
+# Navigate to project directory
+cd mcp2serial
+
+# Create virtual environment using uv
+uv venv .venv
+.venv\Scripts\activate
+
+# Install dependencies
+uv pip install -r requirements.txt
+```
+
+> **Note:** The project will be available on PyPI soon, enabling direct installation via pip.
+
+## Running the Server
+
+```bash
+# Ensure you're in the project root
+cd mcp2serial
+
+# Activate virtual environment (if not already activated)
+.venv\Scripts\activate
+
+# Run the server
+uv run src/mcp2serial/server.py
+```
 
 ## Troubleshooting
 

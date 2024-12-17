@@ -33,43 +33,6 @@ python3 install_macos.py
 - ✅ 配置Claude桌面版（如果已安装）
 - ✅ 检查串口设备
 
-## 源码开发步骤
-
-1. 克隆项目代码：
-
-```bash
-# 克隆代码库
-git clone https://github.com/mcp2everything/mcp2serial.git
-```
-
-2. 创建并激活虚拟环境：
-
-```bash
-# 进入项目目录
-cd mcp2serial
-
-# 使用 uv 创建虚拟环境并安装依赖
-uv venv .venv
-.venv\Scripts\activate
-
-# 安装依赖
-uv pip install -r requirements.txt
-```
-
-> **注意：** 项目即将发布到PyPI，届时可以直接通过pip安装。
-
-## 运行服务器
-
-```bash
-# 确保在项目根目录下
-cd mcp2serial
-
-# 激活虚拟环境（如果尚未激活）
-.venv\Scripts\activate
-
-# 运行服务器
-uv run src/mcp2serial/server.py
-```
 
 ## 配置说明
 
@@ -196,7 +159,19 @@ commands:
 ### MCP客户端配置
 
 在使用支持MCP协议的客户端（如Claude Desktop或Cline）时，需要在客户端的配置文件中添加以下内容：
+直接自动安装的配置方式
+```json
+{
+    "mcpServers": {
+        "mcp2serial": {
+            "command": "uvx",
+            "args": ["mcp2serial"]
+        }
+    }
+}
+```
 
+源码开发的配置方式
 ```json
 {
     "mcpServers": {
@@ -228,20 +203,44 @@ commands:
 > 2. 使用正斜杠（/）或双反斜杠（\\）作为路径分隔符
 > 3. 确保路径指向实际的项目安装目录
 
-### 验证配置
+## 源码开发步骤
 
-运行以下测试命令验证配置是否正确：
+1. 克隆项目代码：
 
 ```bash
-uv run python tests/test_basic_serial.py
+# 克隆代码库
+git clone https://github.com/mcp2everything/mcp2serial.git
 ```
 
-如果配置正确，你将看到类似这样的输出：
+2. 创建并激活虚拟环境：
 
-<div align="center">
-    <img src="../images/test_output.png" alt="测试输出示例" width="600"/>
-    <p>测试命令输出示例</p>
-</div>
+```bash
+# 进入项目目录
+cd mcp2serial
+
+# 使用 uv 创建虚拟环境并安装依赖
+uv venv .venv
+.venv\Scripts\activate
+
+# 安装依赖
+uv pip install -r requirements.txt
+```
+
+> **注意：** 项目即将发布到PyPI，届时可以直接通过pip安装。
+
+## 运行服务器
+
+```bash
+# 确保在项目根目录下
+cd mcp2serial
+
+# 激活虚拟环境（如果尚未激活）
+.venv\Scripts\activate
+
+# 运行服务器
+uv run src/mcp2serial/server.py
+```
+
 
 ## 故障排除
 
@@ -266,7 +265,3 @@ uv run python tests/test_basic_serial.py
 # 运行测试
 uv run pytest tests/
 ```
-
-## 更多信息
-
-详细的API文档和示例请参考 [API文档](../api.md)。

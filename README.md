@@ -23,7 +23,7 @@
 
 ## 项目愿景
 
-MCP2Serial 是一个革命性的项目，它通过 Model Context Protocol (MCP) 将物理世界与 AI 大模型无缝连接。想象一下：
+MCP2Serial 将串口设备接入AI大模型的项目，它通过 Model Context Protocol (MCP) 将物理世界与 AI 大模型无缝连接。最终实现：
 - 用自然语言控制你的硬件设备
 - AI 实时响应并调整物理参数
 - 让你的设备具备理解和执行复杂指令的能力
@@ -31,7 +31,7 @@ MCP2Serial 是一个革命性的项目，它通过 Model Context Protocol (MCP) 
 ## 主要特性
 
 - **智能串口通信**
-  - 自动检测和配置串口设备
+  - 自动检测和配置串口设备 用户也可指定串口号
   - 支持多种波特率（默认 115200）
   - 实时状态监控和错误处理
 
@@ -76,7 +76,7 @@ MCP2Serial 支持所有实现了 MCP 协议的客户端，包括：
 Python3.11 或更高版本
 Claude Desktop 或 Cline
 
-### 安装
+### 自动一键安装
 
 #### Windows用户
 ```bash
@@ -103,10 +103,19 @@ python3 install_macos.py
 - ✅ 配置Claude桌面版（如果已安装）
 - ✅ 检查串口设备
 
-### 基本配置(使用安装脚本时会自动配置，仅供学习用)
+### 手动分步安装依赖
+```bash
+windows
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+MacOS
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+主要依赖uv工具，所以当python和uv以及Claude或Cline安装好后就可以了。
+
+### 基本配置
 
 在你的 MCP 客户端（如 Claude Desktop 或 Cline）配置文件中添加以下内容，注意将路径修改为你的实际安装路径：
-
+注意：如果使用的自动安装那么会自动配置Calude Desktop无需此步。
 ```json
 {
     "mcpServers": {
@@ -144,6 +153,128 @@ commands:
     prompts:
       - "把PWM调到{value}"
 ```
+## 配置说明
+
+### 配置文件位置
+
+配置文件（`config.yaml`）可以放在不同位置，程序会按以下顺序查找：
+
+#### 1. 当前工作目录（适合开发测试）
+- 路径：`./config.yaml`
+- 示例：如果你在 `C:\Projects` 运行程序，它会查找 `C:\Projects\config.yaml`
+- 适用场景：开发和测试
+- 不需要特殊权限
+
+#### 2. 用户主目录（推荐个人使用）
+```bash
+# Windows系统
+C:\Users\用户名\.mcp2serial\config.yaml
+
+# macOS系统
+/Users/用户名/.mcp2serial/config.yaml
+
+# Linux系统
+/home/用户名/.mcp2serial/config.yaml
+```
+- 适用场景：个人配置
+- 需要创建 `.mcp2serial` 目录：
+  ```bash
+  # Windows系统（在命令提示符中）
+  mkdir "%USERPROFILE%\.mcp2serial"
+  
+  # macOS/Linux系统
+  mkdir -p ~/.mcp2serial
+  ```
+
+#### 3. 系统级配置（适合多用户环境）
+```bash
+# Windows系统（需要管理员权限）
+C:\ProgramData\mcp2serial\config.yaml
+
+# macOS/Linux系统（需要root权限）
+/etc/mcp2serial/config.yaml
+```
+- 适用场景：多用户共享配置
+- 创建目录并设置权限：
+  ```bash
+  # Windows系统（以管理员身份运行）
+  mkdir "C:\ProgramData\mcp2serial"
+  
+  # macOS/Linux系统（以root身份运行）
+  sudo mkdir -p /etc/mcp2serial
+  sudo chown root:root /etc/mcp2serial
+  sudo chmod 755 /etc/mcp2serial
+  ```
+
+程序会按照上述顺序查找配置文件，使用找到的第一个有效配置文件。根据你的需求选择合适的位置：
+- 开发测试：使用当前目录
+- 个人使用：建议使用用户主目录（推荐）
+- 多用户环境：使用系统级配置（ProgramData或/etc）
+
+### 串口配置
+
+在 `config.yaml` 文件中配置串口参数：
+
+```yaml
+serial:
+  port: COM11  # Windows系统示例，Linux下可能是 /dev/ttyUSB0
+  baud_rate: 115200  # 波特率
+  timeout: 1.0  # 串口超时时间（秒）
+  read_timeout: 0.5  # 读取超时时间（秒）
+```
+
+如果不指定 `port`，程序会自动搜索可用的串口设备。
+
+### 命令配置
+
+在 `config.yaml` 中添加自定义命令：
+
+```yaml
+commands:
+  # PWM控制命令示例
+  set_pwm:
+    command: "PWM {frequency}\n"  # 实际发送的命令格式
+    need_parse: false  # 不需要解析响应
+    prompts:  # 提示语列表
+      - "把PWM调到{value}"
+      - "关闭PWM"
+
+  # LED控制命令示例
+  led_control:
+    command: "LED {state}\n"  # state可以是on/off或其他值
+    need_parse: false
+    prompts:
+      - "打开LED"
+      - "关闭LED"
+      - "设置LED状态为{state}"
+
+  # 带响应解析的命令示例
+  get_sensor:
+    command: "GET_SENSOR\n"
+    need_parse: true  # 需要解析响应
+    prompts:
+      - "读取传感器数据"
+```
+
+### 响应解析说明
+
+1. 简单响应（`need_parse: false`）：
+   - 设备返回 "OK" 开头的消息表示成功
+   - 其他响应将被视为错误
+
+2. 需要解析的响应（`need_parse: true`）：
+   - 完整响应将在 `result.raw` 字段中返回
+   - 可以在应用层进行进一步解析
+
+响应示例：
+```python
+# 简单响应
+{"status": "success"}
+
+# 需要解析的响应
+{"status": "success", "result": {"raw": "OK TEMP=25.5,HUMIDITY=60%"}}
+```
+
 
 ### 硬件连接
 
@@ -152,7 +283,8 @@ commands:
 3. 在`config.yaml`中配置正确的端口号和波特率
 
 <div align="center">
-    <img src="docs/images/wiring.svg" alt="硬件连接示例" width="600"/>
+    <img src="docs/images/conn
+ect.jpg" alt="硬件连接示例" width="600"/>
     <p>硬件连接和COM端口配置</p>
 </div>
 
@@ -166,6 +298,9 @@ commands:
     <img src="docs/images/test_output.png" alt="Cline Configuration Example" width="600"/>
     <p>Example in Cline</p>
 </div>
+
+### 硬件编程
+firmware可以在项目仓库中下载，目前演示的是Pico的micropython代码案例。另存到Pico开发板运行即可。
 
 ### 从源码快速开始
 ```bash
@@ -216,40 +351,6 @@ uv run src/mcp2serial/server.py
 - [安装指南](./docs/zh/installation.md)
 - [API文档](./docs/zh/api.md)
 - [配置说明](./docs/zh/configuration.md)
-
-## 示例
-
-### 1. 简单命令配置
-```yaml
-commands:
-  led_control:
-    command: "LED {state}\n"
-    need_parse: false
-    prompts:
-      - "打开LED"
-      - "关闭LED"
-      - "设置LED状态为{state}"
-```
-
-### 2. 带响应解析的命令
-```yaml
-commands:
-  get_sensor:
-    command: "GET_SENSOR\n"
-    need_parse: true
-    prompts:
-      - "获取传感器数据"
-```
-
-响应示例：
-```python
-{
-    "status": "success",
-    "result": {
-        "raw": "OK TEMP=25.5"
-    }
-}
-```
 
 
 ## 应用场景

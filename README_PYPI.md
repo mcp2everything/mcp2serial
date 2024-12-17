@@ -25,15 +25,14 @@ MCP2Serial supports all clients implementing the MCP protocol, including:
 - Cline (Test ok)
 
 ## Quick Start
-
-```bash
-# Install using uv (recommended)
-uv pip install mcp2serial
-
-# Or using traditional pip
-pip install mcp2serial
+make sure you have installed uv
 ```
-
+```bash
+windows
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+MacOS
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
 ## Basic Configuration
 
 Add the following to your MCP client configuration:
@@ -42,13 +41,8 @@ Add the following to your MCP client configuration:
 {
     "mcpServers": {
         "mcp2serial": {
-            "command": "uv",
-            "args": [
-                "--directory",
-                "your_actual_path/mcp2serial",
-                "run",
-                "mcp2serial"
-            ]
+            "command": "uvx",
+            "args": ["mcp2serial"]
         }
     }
 }

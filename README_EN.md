@@ -112,6 +112,113 @@ Add the following to your MCP client (like Claude Desktop or Cline) configuratio
 
 > **Note:** The path must be an absolute path and use forward slashes (/) or double backslashes (\\) as path separators.
 
+### Configuration File Location
+
+The configuration file (`config.yaml`) can be placed in different locations depending on your needs:
+
+#### 1. Current Working Directory (For Development)
+- Path: `./config.yaml`
+- Example: If you run the program from `C:\Projects`, it will look for `C:\Projects\config.yaml`
+- Best for: Development and testing
+- No special permissions required
+
+#### 2. User's Home Directory (Recommended for Personal Use)
+```bash
+# Windows
+C:\Users\YourName\.mcp2serial\config.yaml
+
+# macOS
+/Users/YourName/.mcp2serial/config.yaml
+
+# Linux
+/home/username/.mcp2serial/config.yaml
+```
+- Best for: Personal configuration
+- Create the `.mcp2serial` directory if it doesn't exist:
+  ```bash
+  # Windows (in Command Prompt)
+  mkdir "%USERPROFILE%\.mcp2serial"
+  
+  # macOS/Linux
+  mkdir -p ~/.mcp2serial
+  ```
+
+#### 3. System-wide Configuration (For Multi-user Setup)
+```bash
+# Windows (requires admin rights)
+C:\ProgramData\mcp2serial\config.yaml
+
+# macOS/Linux (requires sudo/root)
+/etc/mcp2serial/config.yaml
+```
+- Best for: Shared configuration in multi-user environments
+- Create the directory with appropriate permissions:
+  ```bash
+  # Windows (as administrator)
+  mkdir "C:\ProgramData\mcp2serial"
+  
+  # macOS/Linux (as root)
+  sudo mkdir -p /etc/mcp2serial
+  sudo chown root:root /etc/mcp2serial
+  sudo chmod 755 /etc/mcp2serial
+  ```
+
+The program searches for the configuration file in this order and uses the first valid file it finds. Choose the location based on your needs:
+- For testing: use current directory
+- For personal use: use home directory (recommended)
+- For system-wide settings: use ProgramData or /etc
+
+### Serial Port Configuration
+
+Configure serial port parameters in `config.yaml`:
+
+```yaml
+serial:
+  port: COM11  # Example for Windows, might be /dev/ttyUSB0 on Linux
+  baud_rate: 115200  # Baud rate
+  timeout: 1.0  # Serial timeout in seconds
+  read_timeout: 0.5  # Read timeout in seconds
+```
+
+### MCP Client Configuration
+
+When using MCP protocol-compatible clients (like Claude Desktop or Cline), add the following to your client's configuration file:
+
+```json
+{
+    "mcpServers": {
+        "mcp2serial": {
+            "command": "uvx",
+            "args": ["mcp2serial"]
+        }
+    }
+}
+```
+if you want to develop locally, you can use the following configuration:
+```json
+{
+    "mcpServers": {
+        "mcp2serial": {
+            "command": "uv",
+            "args": [
+                "--directory",
+                "your project path/mcp2serial",  // ex: "C:/Users/Administrator/Documents/develop/my-mcp-server/mcp2serial"
+                "run",
+                "mcp2serial"
+            ]
+        }
+    }
+}
+```
+
+
+> **Important Notes:**
+> 1. Use absolute paths only
+> 2. Use forward slashes (/) or double backslashes (\\) as path separators
+> 3. Ensure the path points to your actual project installation directory
+
+
+
 4. launch your client(claude desktop or cline):
 
 
