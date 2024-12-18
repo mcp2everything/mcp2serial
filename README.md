@@ -70,30 +70,36 @@ MCP2Serial 支持所有实现了 MCP 协议的客户端，包括：
 - Ollama 支持的所有模型
 - 任何兼容 OpenAI API 的模型
 
-## 快速开始
-
 ### 准备
 Python3.11 或更高版本
 Claude Desktop 或 Cline
 
-### 自动一键安装
+
+## 快速开始
+
+### 1. 安装
 
 #### Windows用户
+下载 [install.py](https://raw.githubusercontent.com/mcp2everything/mcp2serial/main/install.py) 
 ```bash
-# 下载安装脚本
-curl -O https://raw.githubusercontent.com/mcp2everything/mcp2serial/main/install.py
-
-# 运行安装脚本
 python install.py
 ```
-
-#### MacOS用户
+#### macOS用户
 ```bash
 # 下载安装脚本
 curl -O https://raw.githubusercontent.com/mcp2everything/mcp2serial/main/install_macos.py
 
 # 运行安装脚本
 python3 install_macos.py
+```
+
+#### Ubuntu/Raspberry Pi用户
+```bash
+# 下载安装脚本
+curl -O https://raw.githubusercontent.com/mcp2everything/mcp2serial/main/install_ubuntu.py
+
+# 运行安装脚本
+python3 install_ubuntu.py
 ```
 
 安装脚本会自动完成以下操作：
@@ -113,19 +119,23 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 主要依赖uv工具，所以当python和uv以及Claude或Cline安装好后就可以了。
 
 ### 基本配置
-
 在你的 MCP 客户端（如 Claude Desktop 或 Cline）配置文件中添加以下内容，注意将路径修改为你的实际安装路径：
 注意：如果使用的自动安装那么会自动配置Calude Desktop无需此步。
+为了能使用多个串口，我们可以新增多个mcp2serial的服务 指定不同的配置文件名即可。
+使用默认配置文件：
 ```json
 {
     "mcpServers": {
         "mcp2serial": {
             "command": "uvx",
-            "args": ["mcp2serial"]
+            "args": [
+                "mcp2serial"
+            ]
         }
     }
 }
 ```
+
 
 <div align="center">
     <img src="docs/images/client_config.png" alt="客户端配置示例" width="600"/>
@@ -143,18 +153,26 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 ```yaml
 # config.yaml
 serial:
-  port: COM11  # 或自动检测
-  baud_rate: 115200
+  # 串口配置
+  port: LOOP_BACK  # 可选，如果不指定则自动查找。设置为LOOP_BACK时启用回环模式，发送什么就接收什么 改为实际你的串口 作为演示无需修改
+  baud_rate: 115200  # 可选，默认 115200
+  timeout: 1.0  # 可选，默认 1.0
+  read_timeout: 1.0  # 读取超时时间，1秒内不应答则报错
+  response_start_string: CMD  # 可选，串口应答的开始字符串，默认为OK
 
 commands:
+  # PWM控制命令
   set_pwm:
-    command: "PWM {frequency}\n"
-    need_parse: false
+    command: "CMD_PWM {frequency}"  # 实际发送的命令格式，server会自动添加\r\n
+    need_parse: false  # 不需要解析响应内容
     prompts:
-      - "把PWM调到{value}"
+      - "把PWM调到最大"
+      - "把PWM调到最小"
+      - "请将PWM设置为{value}"
+      - "关闭PWM"
+      - "把PWM调到一半"
 ```
 ## 配置说明
-
 ### 配置文件位置
 
 配置文件（`config.yaml`）可以放在不同位置，程序会按以下顺序查找：
@@ -211,49 +229,80 @@ C:\ProgramData\mcp2serial\config.yaml
 - 个人使用：建议使用用户主目录（推荐）
 - 多用户环境：使用系统级配置（ProgramData或/etc）
 
-### 串口配置
-
-在 `config.yaml` 文件中配置串口参数：
-
-```yaml
-serial:
-  port: COM11  # Windows系统示例，Linux下可能是 /dev/ttyUSB0
-  baud_rate: 115200  # 波特率
-  timeout: 1.0  # 串口超时时间（秒）
-  read_timeout: 0.5  # 读取超时时间（秒）
-```
-
-如果不指定 `port`，程序会自动搜索可用的串口设备。
-
-### 命令配置
+### 串口配置 命令配置进阶
 
 在 `config.yaml` 中添加自定义命令：
-
+默认不使用真实串口 用模拟串口来演示则无需修改
 ```yaml
-commands:
-  # PWM控制命令示例
-  set_pwm:
-    command: "PWM {frequency}\n"  # 实际发送的命令格式
-    need_parse: false  # 不需要解析响应
-    prompts:  # 提示语列表
-      - "把PWM调到{value}"
-      - "关闭PWM"
+serial:
+  # 串口配置
+  port: LOOP_BACK  # 可选，如果不指定则自动查找。设置为LOOP_BACK时启用回环模式，发送什么就接收什么
+  baud_rate: 115200  # 可选，默认 115200
+  timeout: 1.0  # 可选，默认 1.0
+  read_timeout: 1.0  # 读取超时时间，1秒内不应答则报错
+  response_start_string: CMD  # 可选，串口应答的开始字符串，默认为OK
 
-  # LED控制命令示例
-  led_control:
-    command: "LED {state}\n"  # state可以是on/off或其他值
+commands:
+  # PWM控制命令
+  set_pwm:
+    command: "CMD_PWM {frequency}"  # 实际发送的命令格式，server会自动添加\r\n
+    need_parse: false  # 不需要解析响应内容
+    prompts:
+      - "把PWM调到最大"
+      - "把PWM调到最小"
+      - "请将PWM设置为{value}"
+      - "关闭PWM"
+      - "把PWM调到一半"
+```
+
+使用真实串口
+```yaml
+# config.yaml
+serial:
+  port: COM11  # 或自动检测
+  baud_rate: 115200  # 可选，默认 115200
+  timeout: 1.0  # 可选，默认 1.0
+  read_timeout: 1.0  # 读取超时时间，1秒内不应答则报错
+  response_start_string: OK  # 可选，串口应答的开始字符串，默认为OK
+
+commands:
+  set_pwm:
+    command: "PWM {frequency}\n"
     need_parse: false
     prompts:
-      - "打开LED"
-      - "关闭LED"
-      - "设置LED状态为{state}"
-
-  # 带响应解析的命令示例
-  get_sensor:
-    command: "GET_SENSOR\n"
-    need_parse: true  # 需要解析响应
-    prompts:
-      - "读取传感器数据"
+      - "把PWM调到{value}"
+```
+指定配置文件：
+比如指定加载Pico配置文件：Pico_config.yaml
+```json
+{
+    "mcpServers": {
+        "mcp2serial": {
+            "command": "uvx",
+            "args": [
+                "mcp2serial",
+                "--config",
+                "Pico"  //指定配置文件名，不需要添加_config.yaml后缀
+            ]
+        }
+    }
+}
+```
+如果要接入多个设备，如有要连接第二个设备：
+指定加载Pico2配置文件：Pico2_config.yaml
+```json
+{
+    "mcpServers": {
+        "mcp2serial2": {
+            "command": "uvx",
+            "args": [
+                "mcp2serial",
+                "--config",
+                "Pico2"  //指定配置文件名，不需要添加_config.yaml后缀
+            ]
+        }
+    }
+}
 ```
 
 ### 响应解析说明
@@ -265,15 +314,6 @@ commands:
 2. 需要解析的响应（`need_parse: true`）：
    - 完整响应将在 `result.raw` 字段中返回
    - 可以在应用层进行进一步解析
-
-响应示例：
-```python
-# 简单响应
-{"status": "success"}
-
-# 需要解析的响应
-{"status": "success", "result": {"raw": "OK TEMP=25.5,HUMIDITY=60%"}}
-```
 
 
 ### 硬件连接
@@ -303,31 +343,58 @@ ect.jpg" alt="硬件连接示例" width="600"/>
 firmware可以在项目仓库中下载，目前演示的是Pico的micropython代码案例。另存到Pico开发板运行即可。
 
 ### 从源码快速开始
+1. 从源码安装
 ```bash
 # 通过源码安装：
 git clone https://github.com/mcp2everything/mcp2serial.git
 cd mcp2serial
-uv venv .venv
-.venv\Scripts\activate
-uv pip install -r requirements.txt
-```
-1. 安装依赖：
-```bash
-# 进入项目目录
-cd mcp2serial
 
-# 创建虚拟环境并安装依赖
+# 创建虚拟环境
 uv venv .venv
+
+# 激活虚拟环境
+# Windows:
 .venv\Scripts\activate
-uv pip install -r requirements.txt
+# Linux/macOS:
+source .venv/bin/activate
+
+# 安装开发依赖
+uv pip install --editable .
 ```
 
 2. 配置串口和命令：
+默认不使用真实串口 用模拟串口来演示
+```yaml
+serial:
+  # 串口配置
+  port: LOOP_BACK  # 可选，如果不指定则自动查找。设置为LOOP_BACK时启用回环模式，发送什么就接收什么
+  baud_rate: 115200  # 可选，默认 115200
+  timeout: 1.0  # 可选，默认 1.0
+  read_timeout: 1.0  # 读取超时时间，1秒内不应答则报错
+  response_start_string: CMD  # 可选，串口应答的开始字符串，默认为OK
+
+commands:
+  # PWM控制命令
+  set_pwm:
+    command: "CMD_PWM {frequency}"  # 实际发送的命令格式，server会自动添加\r\n
+    need_parse: false  # 不需要解析响应内容
+    prompts:
+      - "把PWM调到最大"
+      - "把PWM调到最小"
+      - "请将PWM设置为{value}"
+      - "关闭PWM"
+      - "把PWM调到一半"
+```
+
+如果使用真实串口
 ```yaml
 # config.yaml
 serial:
   port: COM11  # 或自动检测
-  baud_rate: 115200
+  baud_rate: 115200  # 可选，默认 115200
+  timeout: 1.0  # 可选，默认 1.0
+  read_timeout: 1.0  # 读取超时时间，1秒内不应答则报错
+  response_start_string: OK  # 可选，串口应答的开始字符串，默认为OK
 
 commands:
   set_pwm:
@@ -337,14 +404,67 @@ commands:
       - "把PWM调到{value}"
 ```
 
+如果你的电脑没有串口或者目前没有串口可用
+可以将port参数设置为LOOP_BACK，这样就可以在命令行直接发送命令了
+但同时请修改应答OK的命令的起始符需要和发送的命令一样。
+比如发送LED_ON
+那么应答起始符也是LED_ON
+
+### MCP客户端配置
+
+在使用支持MCP协议的客户端（如Claude Desktop或Cline）时，需要在客户端的配置文件中添加以下内容：
+直接自动安装的配置方式
+源码开发的配置方式
+#### 使用默认演示参数：
+```json
+{
+    "mcpServers": {
+        "mcp2serial": {
+            "command": "uv",
+            "args": [
+                "--directory",
+                "你的实际路径/mcp2serial",  // 例如: "C:/Users/Administrator/Documents/develop/my-mcp-server/mcp2serial"
+                "run",
+                "mcp2serial"
+            ]
+        }
+    }
+}
+```
+#### 指定参数文件名
+```json
+{
+    "mcpServers": {
+        "mcp2serial": {
+            "command": "uv",
+            "args": [
+                "--directory",
+                "你的实际路径/mcp2serial",  // 例如: "C:/Users/Administrator/Documents/develop/my-mcp-server/mcp2serial"
+                "run",
+                "mcp2serial",
+                "--config", // 可选参数，指定配置文件名
+                "Pico"  // 可选参数，指定配置文件名，不需要添加_config.yaml后缀
+            ]
+        }
+    }
+}
+```
+
 3. 运行服务器：
 ```bash
 # 确保已激活虚拟环境
 .venv\Scripts\activate
 
-# 运行服务器
+# 运行服务器（使用默认配置config.yaml 案例中用的LOOP_BACK 模拟串口，无需真实串口和串口设备）
 uv run src/mcp2serial/server.py
+或
+uv run mcp2serial
+# 运行服务器（使用指定配置Pico_config.yaml）
+uv run src/mcp2serial/server.py --config Pico
+或
+uv run mcp2serial --config Pico
 ```
+
 
 ## 文档
 

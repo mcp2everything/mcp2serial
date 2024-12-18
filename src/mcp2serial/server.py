@@ -67,24 +67,28 @@ class Config:
     baud_rate: int = 115200
     timeout: float = 1.0
     read_timeout: float = 1.0
+    response_start_string: str = "OK"  # 新增：可配置的应答开始字符串
     commands: Dict[str, Command] = field(default_factory=dict)
 
     @staticmethod
     def load(config_path: str = "config.yaml") -> 'Config':
         """Load configuration from YAML file."""
+        # 获取配置文件名
+        config_name = os.path.basename(config_path)
+        
         # 定义可能的配置文件位置
         config_paths = [
             config_path,  # 首先检查指定的路径
-            os.path.join(os.getcwd(), "config.yaml"),  # 当前工作目录
-            os.path.expanduser("~/.mcp2serial/config.yaml"),  # 用户主目录
+            os.path.join(os.getcwd(), config_name),  # 当前工作目录
+            os.path.expanduser(f"~/.mcp2serial/{config_name}"),  # 用户主目录
         ]
         
         # 添加系统级目录
         if os.name == 'nt':  # Windows
             config_paths.append(os.path.join(os.environ.get("ProgramData", "C:\\ProgramData"),
-                                           "mcp2serial", "config.yaml"))
+                                           "mcp2serial", config_name))
         else:  # Linux/Mac
-            config_paths.append("/etc/mcp2serial/config.yaml")
+            config_paths.append(f"/etc/mcp2serial/{config_name}")
 
         # 尝试从每个位置加载配置
         for path in config_paths:
@@ -100,7 +104,8 @@ class Config:
                         port=serial_config.get('port'),
                         baud_rate=serial_config.get('baud_rate', 115200),
                         timeout=serial_config.get('timeout', 1.0),
-                        read_timeout=serial_config.get('read_timeout', 1.0)
+                        read_timeout=serial_config.get('read_timeout', 1.0),
+                        response_start_string=serial_config.get('response_start_string', 'OK')  # 新增：加载应答开始字符串
                     )
 
                     # Load commands
@@ -133,10 +138,17 @@ class SerialConnection:
         self.baud_rate: int = config.baud_rate
         self.timeout: float = 2.0  # 最大超时2秒
         self.read_timeout: float = 1.0
+        self.is_loopback: bool = False  # 新增：标记是否为回环模式
 
     def connect(self) -> bool:
         """Attempt to connect to an available serial port."""
         try:
+            # 检查是否为回环模式
+            if config.port == "LOOP_BACK":
+                logger.info("Using LOOP_BACK mode")
+                self.is_loopback = True
+                return True
+
             # 如果已经连接，直接返回
             if self.serial_port and self.serial_port.is_open:
                 logger.debug("Using existing serial connection")
@@ -195,7 +207,7 @@ class SerialConnection:
         """Send a command to the serial port and return result according to MCP protocol."""
         try:
             # 确保连接
-            if not self.serial_port or not self.serial_port.is_open:
+            if not self.is_loopback and (not self.serial_port or not self.serial_port.is_open):
                 logger.info("No active connection, attempting to connect...")
                 if not self.connect():
                     error_msg = f"[MCP2Serial v{VERSION}] Failed to establish serial connection.\n"
@@ -212,29 +224,37 @@ class SerialConnection:
             cmd_str = command.command.format(**arguments)
             # 确保命令以\r\n结尾
             cmd_str = cmd_str.rstrip() + '\r\n'  # 移除可能的空白字符，强制添加\r\n
+
             cmd_bytes = cmd_str.encode()
             logger.info(f"Sending command: {cmd_str.strip()}")
             logger.info(f"Command bytes ({len(cmd_bytes)} bytes): {' '.join([f'0x{b:02X}' for b in cmd_bytes])}")
 
-            # 清空缓冲区
-            self.serial_port.reset_input_buffer()
-            self.serial_port.reset_output_buffer()
+            if self.is_loopback:
+                # 回环模式：直接返回发送的命令和OK响应
+                responses = [
+                    cmd_str.encode(),  # 命令回显
+                    f"{config.response_start_string}\r\n".encode()  # OK响应
+                ]
+            else:
+                # 清空缓冲区
+                self.serial_port.reset_input_buffer()
+                self.serial_port.reset_output_buffer()
 
-            # 发送命令
-            bytes_written = self.serial_port.write(cmd_bytes)
-            logger.info(f"Wrote {bytes_written} bytes")
-            self.serial_port.flush()
+                # 发送命令
+                bytes_written = self.serial_port.write(cmd_bytes)
+                logger.info(f"Wrote {bytes_written} bytes")
+                self.serial_port.flush()
 
-            # 等待一段时间确保命令被处理
-            time.sleep(0.1)
+                # 等待一段时间确保命令被处理
+                time.sleep(0.1)
 
-            # 读取所有响应
-            responses = []
-            while self.serial_port.in_waiting:
-                response = self.serial_port.readline()
-                logger.info(f"Raw response: {response}")
-                if response:
-                    responses.append(response)
+                # 读取所有响应
+                responses = []
+                while self.serial_port.in_waiting:
+                    response = self.serial_port.readline()
+                    logger.info(f"Raw response: {response}")
+                    if response:
+                        responses.append(response)
 
             if not responses:
                 logger.error("No response received within timeout")
@@ -258,7 +278,7 @@ class SerialConnection:
             # 检查是否有第二行响应
             if len(responses) > 1:
                 second_response = responses[1]
-                if second_response.startswith(b"OK"):
+                if second_response.startswith(config.response_start_string.encode()):  # 使用配置的应答开始字符串
                     if command.need_parse:
                         return [types.TextContent(
                             type="text",
@@ -274,7 +294,7 @@ class SerialConnection:
             for i, resp in enumerate(responses, 1):
                 error_msg += f"{i}. Raw: {resp!r}\n   Decoded: {resp.decode().strip()}\n"
             error_msg += "\nPossible reasons:\n"
-            error_msg += "- Device echoed the command but did not send OK response\n"
+            error_msg += f"- Device echoed the command but did not send {config.response_start_string} response\n"
             error_msg += "- Command format may be incorrect\n"
             error_msg += "- Device may be in wrong mode\n"
             return [types.TextContent(
@@ -300,16 +320,6 @@ class SerialConnection:
             error_msg += "1. Serial port is correctly configured in config.yaml\n"
             error_msg += "2. Device is properly connected\n"
             error_msg += "3. No other program is using the port"
-            return [types.TextContent(
-                type="text",
-                text=error_msg
-            )]
-        except Exception as e:
-            logger.error(f"Unexpected error: {str(e)}")
-            error_msg = f"[MCP2Serial v{VERSION}] Internal error - {str(e)}\n"
-            error_msg += "Please check:\n"
-            error_msg += "1. Configuration is correct\n"
-            error_msg += "2. Device is functioning properly"
             return [types.TextContent(
                 type="text",
                 text=error_msg
@@ -386,9 +396,25 @@ async def handle_call_tool(name: str, arguments: dict[str, Any] | None) -> list[
             text=error_msg
         )]
 
-async def main():
-    """Run the MCP server."""
+async def main(config_name: str = None) -> None:
+    """Run the MCP server.
+    
+    Args:
+        config_name: Optional configuration name. If not provided, uses default config.yaml
+    """
     logger.info("Starting MCP2Serial server")
+    
+    # 处理配置文件名
+    if config_name and config_name != "default":
+        if not config_name.endswith("_config.yaml"):
+            config_name = f"{config_name}_config.yaml"
+    else:
+        config_name = "config.yaml"
+        
+    # 加载配置
+    global config
+    config = Config.load(config_name)
+    
     try:
         async with mcp.server.stdio.stdio_server() as (read_stream, write_stream):
             await server.run(
@@ -396,7 +422,7 @@ async def main():
                 write_stream,
                 InitializationOptions(
                     server_name="mcp2serial",
-                    server_version="0.1.0",
+                    server_version=VERSION,
                     capabilities=server.get_capabilities(
                         notification_options=NotificationOptions(),
                         experimental_capabilities={},
@@ -409,4 +435,6 @@ async def main():
         serial_connection.close()
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    import sys
+    config_name = sys.argv[1] if len(sys.argv) > 1 else None
+    asyncio.run(main(config_name))

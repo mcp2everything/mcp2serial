@@ -53,7 +53,7 @@ curl -O https://raw.githubusercontent.com/mcp2everything/mcp2serial/main/install
 python install.py
 ```
 
-#### For MacOS Users
+#### For macOS Users
 ```bash
 # Download the installation script
 curl -O https://raw.githubusercontent.com/mcp2everything/mcp2serial/main/install_macos.py
@@ -62,55 +62,21 @@ curl -O https://raw.githubusercontent.com/mcp2everything/mcp2serial/main/install
 python3 install_macos.py
 ```
 
+#### For Ubuntu/Raspberry Pi Users
+```bash
+# Download the installation script
+curl -O https://raw.githubusercontent.com/mcp2everything/mcp2serial/main/install_ubuntu.py
+
+# Run the installation script
+python3 install_ubuntu.py
+```
+
 The installation script will automatically:
 - ✅ Check system environment
 - ✅ Install required dependencies
 - ✅ Create default configuration file
 - ✅ Configure Claude Desktop (if installed)
 - ✅ Check serial devices
-
-2. Configure serial port and commands:
-```yaml
-# config.yaml
-serial:
-  port: COM11  # or auto-detect
-  baud_rate: 115200
-
-commands:
-  set_pwm:
-    command: "PWM {frequency}\n"
-    need_parse: false
-    prompts:
-      - "Set PWM to {value}%"
-```
-
-
-3.MCP json Configuration
-
-Add the following to your MCP client (like Claude Desktop or Cline) configuration file, making sure to update the path to your actual installation path:
-
-```json
-{
-    "mcpServers": {
-        "mcp2serial": {
-            "command": "uvx",
-            "args": ["mcp2serial"]
-        }
-    }
-}
-```
-
-<div align="center">
-    <img src="docs/images/client_config.png" alt="Client Configuration Example" width="600"/>
-    <p>Configuration Example in Claude Desktop</p>
-</div>
-
-<div align="center">
-    <img src="docs/images/cline_config.png" alt="Cline Configuration Example" width="600"/>
-    <p>Configuration Example in Cline</p>
-</div>
-
-> **Note:** The path must be an absolute path and use forward slashes (/) or double backslashes (\\) as path separators.
 
 ### Configuration File Location
 
@@ -170,19 +136,24 @@ The program searches for the configuration file in this order and uses the first
 
 ### Serial Port Configuration
 
-Configure serial port parameters in `config.yaml`:
-
+Configure serial port and commands in `config.yaml`:
 ```yaml
+# config.yaml
 serial:
-  port: COM11  # Example for Windows, might be /dev/ttyUSB0 on Linux
-  baud_rate: 115200  # Baud rate
-  timeout: 1.0  # Serial timeout in seconds
-  read_timeout: 0.5  # Read timeout in seconds
+  port: COM11  # or auto-detect
+  baud_rate: 115200
+
+commands:
+  set_pwm:
+    command: "PWM {frequency}\n"
+    need_parse: false
+    prompts:
+      - "Set PWM to {value}%"
 ```
 
-### MCP Client Configuration
 
-When using MCP protocol-compatible clients (like Claude Desktop or Cline), add the following to your client's configuration file:
+3.MCP json Configuration
+Add the following to your MCP client (like Claude Desktop or Cline) configuration file, making sure to update the path to your actual installation path:
 
 ```json
 {
@@ -210,7 +181,6 @@ if you want to develop locally, you can use the following configuration:
     }
 }
 ```
-
 
 > **Important Notes:**
 > 1. Use absolute paths only
@@ -290,13 +260,23 @@ Response example:
 
 ## Installation from source code
  
+#### Manual Installation
 ```bash
-# source codeClone the repository
+# Install from source:
 git clone https://github.com/mcp2everything/mcp2serial.git
 cd mcp2serial
+
+# Create virtual environment
 uv venv .venv
+
+# Activate virtual environment
+# Windows:
 .venv\Scripts\activate
-uv pip install -r requirements.txt
+# Linux/macOS:
+source .venv/bin/activate
+
+# Install development dependencies
+uv pip install --editable .
 ```
 
 ## Running the Service

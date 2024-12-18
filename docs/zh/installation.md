@@ -26,6 +26,15 @@ curl -O https://raw.githubusercontent.com/mcp2everything/mcp2serial/main/install
 python3 install_macos.py
 ```
 
+#### Ubuntu/Raspberry Pi用户
+```bash
+# 下载安装脚本
+curl -O https://raw.githubusercontent.com/mcp2everything/mcp2serial/main/install_ubuntu.py
+
+# 运行安装脚本
+python3 install_ubuntu.py
+```
+
 安装脚本会自动完成以下操作：
 - ✅ 检查系统环境
 - ✅ 安装必要的依赖
@@ -33,6 +42,54 @@ python3 install_macos.py
 - ✅ 配置Claude桌面版（如果已安装）
 - ✅ 检查串口设备
 
+
+## 手动安装
+
+如果你不想使用安装脚本，也可以手动安装：
+
+### 方式一：通过 pip 安装
+
+1. 确保已安装 Python 3.11+
+2. 安装 uv 包管理器：
+   ```bash
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+   ```
+
+3. 创建虚拟环境：
+   ```bash
+   uv venv .venv
+   ```
+
+4. 激活虚拟环境：
+   - Windows: `.venv\Scripts\activate`
+   - macOS/Linux: `source .venv/bin/activate`
+
+5. 安装 mcp2serial：
+   ```bash
+   uv pip install mcp2serial
+   ```
+
+### 方式二：通过源码安装
+
+1. 克隆仓库：
+   ```bash
+   git clone https://github.com/mcp2everything/mcp2serial.git
+   cd mcp2serial
+   ```
+
+2. 创建虚拟环境：
+   ```bash
+   uv venv .venv
+   ```
+
+3. 激活虚拟环境：
+   - Windows: `.venv\Scripts\activate`
+   - macOS/Linux: `source .venv/bin/activate`
+
+4. 安装开发依赖：
+   ```bash
+   uv pip install --editable .
+   ```
 
 ## 配置说明
 
@@ -264,4 +321,3 @@ uv run src/mcp2serial/server.py
 
 # 运行测试
 uv run pytest tests/
-```

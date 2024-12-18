@@ -29,10 +29,19 @@
 # ====================================================
 from . import server
 import asyncio
+import argparse
+
 
 def main():
     """Main entry point for the package."""
-    asyncio.run(server.main())
+    parser = argparse.ArgumentParser(description='MCP2Serial Server')
+    parser.add_argument('--config', 
+                       default="default",
+                       help='Configuration name (without _config.yaml suffix)')
+    
+    args = parser.parse_args()
+    asyncio.run(server.main(args.config))
+
 
 # Expose important items at package level
 __version__ = "0.1.0"
