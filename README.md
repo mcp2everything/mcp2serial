@@ -135,42 +135,25 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
     }
 }
 ```
-
-
-<div align="center">
-    <img src="docs/images/client_config.png" alt="客户端配置示例" width="600"/>
-    <p>在 Claude Desktop 中的配置示例</p>
-</div>
-
-<div align="center">
-    <img src="docs/images/cline_config.png" alt="Cline配置示例" width="600"/>
-    <p>在 Cline 中的配置示例</p>
-</div>
-
 > 注意：配置中的路径必须使用完整的绝对路径，并且使用正斜杠（/）或双反斜杠（\\）作为路径分隔符。
 
 配置串口和命令：
+注意下面的配置仅供没有
 ```yaml
 # config.yaml
 serial:
-  # 串口配置
-  port: LOOP_BACK  # 可选，如果不指定则自动查找。设置为LOOP_BACK时启用回环模式，发送什么就接收什么 改为实际你的串口 作为演示无需修改
+  port: COM11  # 或自动检测
   baud_rate: 115200  # 可选，默认 115200
   timeout: 1.0  # 可选，默认 1.0
   read_timeout: 1.0  # 读取超时时间，1秒内不应答则报错
-  response_start_string: CMD  # 可选，串口应答的开始字符串，默认为OK
+  response_start_string: OK  # 可选，串口应答的开始字符串，默认为OK
 
 commands:
-  # PWM控制命令
   set_pwm:
-    command: "CMD_PWM {frequency}"  # 实际发送的命令格式，server会自动添加\r\n
-    need_parse: false  # 不需要解析响应内容
+    command: "PWM {frequency}\n"
+    need_parse: false
     prompts:
-      - "把PWM调到最大"
-      - "把PWM调到最小"
-      - "请将PWM设置为{value}"
-      - "关闭PWM"
-      - "把PWM调到一半"
+      - "把PWM调到{value}"
 ```
 ## 配置说明
 ### 配置文件位置
@@ -364,6 +347,11 @@ uv pip install --editable .
 
 2. 配置串口和命令：
 默认不使用真实串口 用模拟串口来演示
+如果你的电脑没有串口或者目前没有串口可用
+可以将port参数设置为LOOP_BACK，这样就可以在命令行直接发送命令了
+但同时请修改应答OK的命令的起始符需要和发送的命令一样。
+比如发送LED_ON
+那么应答起始符也是LED_ON
 ```yaml
 serial:
   # 串口配置
@@ -404,11 +392,7 @@ commands:
       - "把PWM调到{value}"
 ```
 
-如果你的电脑没有串口或者目前没有串口可用
-可以将port参数设置为LOOP_BACK，这样就可以在命令行直接发送命令了
-但同时请修改应答OK的命令的起始符需要和发送的命令一样。
-比如发送LED_ON
-那么应答起始符也是LED_ON
+
 
 ### MCP客户端配置
 
