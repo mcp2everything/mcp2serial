@@ -119,9 +119,8 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 主要依赖uv工具，所以当python和uv以及Claude或Cline安装好后就可以了。
 
 ### 基本配置
-在你的 MCP 客户端（如 Claude Desktop 或 Cline）配置文件中添加以下内容，注意将路径修改为你的实际安装路径：
+在你的 MCP 客户端（如 Claude Desktop 或 Cline）配置文件中添加以下内容：
 注意：如果使用的自动安装那么会自动配置Calude Desktop无需此步。
-为了能使用多个串口，我们可以新增多个mcp2serial的服务 指定不同的配置文件名即可。
 使用默认配置文件：
 ```json
 {
@@ -135,10 +134,10 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
     }
 }
 ```
-> 注意：配置中的路径必须使用完整的绝对路径，并且使用正斜杠（/）或双反斜杠（\\）作为路径分隔符。
+> 注意：修改配置后需要重启Cline或者Claude客户端软件
 
 配置串口和命令：
-注意下面的配置默认为串口11 需要根据实际进行修改
+注意下面的配置默认为COM11 需要根据实际进行修改
 ```yaml
 # config.yaml
 serial:
@@ -213,7 +212,6 @@ C:\ProgramData\mcp2serial\config.yaml
 - 多用户环境：使用系统级配置（ProgramData或/etc）
 
 ### 串口配置 命令配置进阶
-
 在 `config.yaml` 中添加自定义命令：
 默认不使用真实串口 用模拟串口来演示则无需修改
 ```yaml
@@ -271,6 +269,7 @@ commands:
     }
 }
 ```
+为了能使用多个串口，我们可以新增多个mcp2serial的服务 指定不同的配置文件名即可。
 如果要接入多个设备，如有要连接第二个设备：
 指定加载Pico2配置文件：Pico2_config.yaml
 ```json
